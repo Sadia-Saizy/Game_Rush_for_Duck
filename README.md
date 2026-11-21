@@ -3,7 +3,7 @@
 A browser-based 2D arcade endless-runner game inspired by my daughter's original game idea and character concepts!
 
 ## 🎮 Play Online
-Play directly in your browser: **[Launch Rush for Ducks](https://sadia-saizy.github.io/Rush_for_Duck/)** 
+Play directly in your browser: **[Launch Rush for Ducks](https://sadia-saizy.github.io/Game_Rush_for_Duck/)** 
 
 ## 🐣 Characters & Progression
 * **Peep** *(Starter Hero)* — A circular yellow chick with a nimble double-jump.
