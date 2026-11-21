@@ -1,4 +1,4 @@
-# 🦆 Rush for Ducks
+# 🦆Game Rush for Ducks
 
 A browser-based 2D arcade endless-runner game inspired by my daughter's original game idea and character concepts!
 
