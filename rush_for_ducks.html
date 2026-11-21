@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Rush for Ducks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Fredoka', cursive, sans-serif;
+      --font-body: 'Nunito', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-body);
+      background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 55%, #86efac 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: var(--font-display);
+    }
+
+    /* Custom Game Buttons */
+    .game-btn {
+      font-family: var(--font-display);
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, filter 0.15s ease;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 45%;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .game-btn:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.05);
+    }
+
+    .game-btn:active:not(:disabled) {
+      transform: translateY(3px) scale(0.98);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .game-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(0.4);
+    }
+
+    /* Canvas Wrapper */
+    #game-frame {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      aspect-ratio: 16 / 9;
+      min-height: 360px;
+      max-height: 620px;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(14, 116, 144, 0.35), 0 0 0 6px #ffffff, 0 0 0 10px #0284c7;
+      background: #7dd3fc;
+    }
+
+    @media (max-width: 640px) {
+      #game-frame {
+        aspect-ratio: auto;
+        height: 62vh;
+        min-height: 340px;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(14, 116, 144, 0.35), 0 0 0 4px #ffffff;
+      }
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Floating animations */
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .animate-bob {
+      animation: floatBob 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.65); }
+      50% { box-shadow: 0 0 0 12px rgba(250, 204, 21, 0); }
+    }
+
+    .unlock-glow {
+      animation: pulseGlow 1.8s infinite;
+    }
+
+    /* Custom Scrollbar for modal */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #0284c7;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4">
+
+  <!-- Top Title & Quick Controls Bar -->
+  <header class="w-full max-w-[980px] flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3 px-1">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-500 border-2 border-white shadow-md flex items-center justify-center animate-bob">
+        <!-- Mini Peep Icon -->
+        <svg viewBox="0 0 64 64" class="w-8 h-8">
+          <circle cx="32" cy="34" r="22" fill="#FDE047" stroke="#CA8A04" stroke-width="3"/>
+          <path d="M27 13 Q32 4 36 13" fill="none" stroke="#CA8A04" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="39" cy="28" r="3.5" fill="#1E293B"/>
+          <circle cx="40.5" cy="26.8" r="1.2" fill="#FFFFFF"/>
+          <polygon points="48,32 60,36 48,40" fill="#F97316" stroke="#C2410C" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-sky-950 tracking-tight drop-shadow-sm leading-none">
+          Rush for Ducks
+        </h1>
+        <p class="text-xs sm:text-sm font-bold text-sky-800/90">
+          Level up Peep to unlock Quack (Lv.3) &amp; Hoot (Lv.10)!
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Highest Level Badge -->
+      <div class="bg-white/85 backdrop-blur-sm border-2 border-sky-200 rounded-xl px-3 py-1.5 shadow-sm flex items-center gap-1.5">
+        <span class="text-amber-500 text-base">★</span>
+        <span class="text-xs sm:text-sm font-extrabold text-sky-950">Max Lv: <span id="header-max-level" class="text-amber-600">1</span></span>
+      </div>
+
+      <!-- Roster / Cast Button -->
+      <button id="btn-open-roster" class="game-btn bg-gradient-to-b from-purple-500 to-purple-700 text-white text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl border-2 border-purple-300 flex items-center gap-1.5">
+        <span>🦆</span>
+        <span>Heroes &amp; Chirp</span>
+      </button>
+
+      <!-- Sound Toggle -->
+      <button id="btn-sound" aria-label="Toggle Sound" class="game-btn bg-gradient-to-b from-sky-500 to-sky-700 text-white text-sm font-bold p-2 sm:px-3 sm:py-2 rounded-xl border-2 border-sky-300">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Viewport Container -->
+  <main id="game-frame">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Live In-Game HUD Overlay -->
+    <div id="hud-overlay" class="hidden absolute inset-x-0 top-0 p-2.5 sm:p-4 pointer-events-none flex flex-col gap-2 z-10">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Left: Active Hero + Hearts -->
+        <div class="flex items-center gap-2 bg-slate-900/75 backdrop-blur-md text-white px-3 py-1.5 rounded-2xl border border-white/25 shadow-lg pointer-events-auto">
+          <div id="hud-hero-avatar" class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center overflow-hidden"></div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span id="hud-hero-name" class="font-display font-bold text-sm sm:text-base text-yellow-300 leading-none">Peep</span>
+              <button id="hud-switch-btn" title="Switch Unlocked Hero" class="text-[11px] bg-white/20 hover:bg-white/30 px-1.5 py-0.5 rounded-md font-bold transition">
+                Switch ↻
+              </button>
+            </div>
+            <div id="hud-hearts" class="flex items-center gap-0.5 text-sm sm:text-base mt-0.5">
+              ❤️❤️❤️
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Level & XP Progress Bar -->
+        <div class="flex-1 min-w-[170px] max-w-xs bg-slate-900/75 backdrop-blur-md text-white px-3.5 py-1.5 rounded-2xl border border-white/25 shadow-lg">
+          <div class="flex items-center justify-between text-xs font-extrabold mb-1">
+            <span class="text-amber-300 font-display text-sm">LEVEL <span id="hud-level">1</span></span>
+            <span id="hud-next-unlock" class="text-sky-200 text-[11px]">Next: Quack at Lv.3</span>
+          </div>
+          <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden border border-white/20 p-0.5">
+            <div id="hud-xp-bar" class="h-full rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-lime-400 transition-all duration-150" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Right: Score & Pause -->
+        <div class="flex items-center gap-2 pointer-events-auto">
+          <div class="bg-slate-900/75 backdrop-blur-md text-white px-3.5 py-1.5 rounded-2xl border border-white/25 shadow-lg text-right">
+            <div class="text-[10px] uppercase tracking-wider text-sky-300 font-bold leading-none">Score</div>
+            <div id="hud-score" class="font-display font-bold text-lg sm:text-xl text-white leading-tight">0</div>
+          </div>
+          <button id="btn-pause" class="game-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold w-10 h-10 rounded-2xl border-2 border-amber-200 flex items-center justify-center text-base">
+            ⏸
+          </button>
+        </div>
+      </div>
+
+      <!-- Hoot Special Ability Indicator (Shown only when Hoot is active) -->
+      <div id="hud-hoot-power" class="hidden self-start bg-purple-950/85 backdrop-blur-md text-purple-100 px-3 py-1 rounded-xl border border-purple-400/50 text-xs font-bold flex items-center gap-2 shadow">
+        <span>🦉 Owl Sonic Blast:</span>
+        <div class="w-24 h-2.5 bg-purple-900 rounded-full overflow-hidden border border-purple-400/40">
+          <div id="hud-hoot-bar" class="h-full bg-gradient-to-r from-fuchsia-400 to-amber-300 transition-all duration-100" style="width: 100%;"></div>
+        </div>
+        <span class="text-[11px] text-amber-300">[E / Shift / Blast]</span>
+      </div>
+    </div>
+
+    <!-- Celebratory Level-Up & Hero Unlock Toast Banner -->
+    <div id="banner-toast" class="hidden absolute top-20 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[460px] z-30 pointer-events-none">
+      <div id="banner-card" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-3.5 sm:p-4 rounded-2xl border-4 border-yellow-300 shadow-2xl text-center transform transition-all">
+        <div id="banner-badge" class="inline-block bg-yellow-300 text-slate-950 font-display font-bold text-xs uppercase px-2.5 py-0.5 rounded-full mb-1">
+          LEVEL UP!
+        </div>
+        <h3 id="banner-title" class="font-display text-xl sm:text-2xl font-bold text-white drop-shadow">
+          Reached Level 2!
+        </h3>
+        <p id="banner-subtitle" class="text-xs sm:text-sm font-bold text-yellow-100 mt-0.5">
+          Speed increases! Watch out for Chirp!
+        </p>
+        <div id="banner-action-wrap" class="hidden mt-2.5 pointer-events-auto">
+          <button id="banner-switch-btn" class="game-btn bg-yellow-300 text-slate-950 font-bold text-xs sm:text-sm px-4 py-1.5 rounded-xl border-2 border-white">
+            Play as New Hero Now!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- START SCREEN OVERLAY -->
+    <div id="screen-start" class="absolute inset-0 bg-sky-950/55 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-20 overflow-y-auto">
+      <div class="bg-white/95 rounded-3xl border-4 border-sky-400 shadow-2xl max-w-2xl w-full p-4 sm:p-6 text-center my-auto">
+        <div class="inline-flex items-center gap-2 bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full mb-2">
+          <span>🌿 POND &amp; MEADOW DASH</span>
+          <span>•</span>
+          <span>ENEMY: CHIRP THE ROBIN 🐦</span>
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl font-bold text-sky-950 tracking-tight mb-1">
+          Choose Your Bird &amp; Rush!
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 font-semibold mb-4">
+          Collect golden seeds &amp; feathers to level up. Dodge <span class="text-rose-600 font-extrabold">Chirp (Robin)</span>!
+        </p>
+
+        <!-- Playable Character Selection Grid -->
+        <div id="start-hero-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mb-4 text-left">
+          <!-- Cards populated dynamically by JS -->
+        </div>
+
+        <!-- Controls Quick Guide -->
+        <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-2.5 mb-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs font-bold text-sky-900">
+          <span>⬆️ <b>Space / W / Tap</b>: Jump &amp; Double Jump</span>
+          <span>⬇️ <b>Down / S</b>: Duck / Fast Dive</span>
+          <span>⚡ <b>E / Shift</b>: Hero Special (Quack Glide / Hoot Blast)</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button id="btn-start-game" class="game-btn w-full sm:w-auto bg-gradient-to-b from-lime-400 to-green-600 text-white text-lg sm:text-xl font-bold px-8 py-3 rounded-2xl border-2 border-lime-200 tracking-wide">
+            ▶ START RUSHING!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE OVERLAY -->
+    <div id="screen-pause" class="hidden absolute inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-20">
+      <div class="bg-white rounded-3xl border-4 border-amber-400 shadow-2xl max-w-md w-full p-6 text-center">
+        <h2 class="text-3xl font-bold text-slate-900 mb-1">Game Paused</h2>
+        <p class="text-sm text-slate-600 font-semibold mb-4">Switch your unlocked hero or resume your run!</p>
+
+        <div id="pause-hero-switcher" class="grid grid-cols-3 gap-2 mb-5">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
+          <button id="btn-resume" class="game-btn bg-gradient-to-b from-lime-400 to-green-600 text-white font-bold px-6 py-2.5 rounded-2xl border-2 border-lime-200">
+            ▶ Resume
+          </button>
+          <button id="btn-restart-pause" class="game-btn bg-gradient-to-b from-sky-400 to-blue-600 text-white font-bold px-6 py-2.5 rounded-2xl border-2 border-sky-200">
+            ↻ Restart
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="screen-gameover" class="hidden absolute inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-20">
+      <div class="bg-white rounded-3xl border-4 border-rose-400 shadow-2xl max-w-md w-full p-5 sm:p-6 text-center">
+        <div class="inline-block bg-rose-100 text-rose-700 font-extrabold text-xs px-3 py-1 rounded-full mb-1">
+          CAUGHT BY CHIRP! 🐦
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">Feather Ruffled!</h2>
+
+        <div class="grid grid-cols-3 gap-2 bg-slate-100 rounded-2xl p-3 mb-4 border border-slate-200">
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase">Score</div>
+            <div id="go-score" class="font-display text-xl sm:text-2xl font-bold text-sky-700">0</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase">Best</div>
+            <div id="go-best" class="font-display text-xl sm:text-2xl font-bold text-amber-600">0</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase">Level</div>
+            <div id="go-level" class="font-display text-xl sm:text-2xl font-bold text-purple-700">1</div>
+          </div>
+        </div>
+
+        <p id="go-unlock-hint" class="text-xs font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl p-2 mb-4">
+          Keep leveling up to unlock Quack (Lv.3) and Hoot (Lv.10)!
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
+          <button id="btn-play-again" class="game-btn bg-gradient-to-b from-lime-400 to-green-600 text-white text-lg font-bold px-7 py-3 rounded-2xl border-2 border-lime-200">
+            ↻ Play Again
+          </button>
+          <button id="btn-go-menu" class="game-btn bg-gradient-to-b from-amber-400 to-orange-500 text-white font-bold px-5 py-3 rounded-2xl border-2 border-amber-200">
+            🦆 Heroes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARACTER SHOWCASE / ROSTER MODAL -->
+    <div id="modal-roster" class="hidden absolute inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 z-30">
+      <div class="bg-white rounded-3xl border-4 border-purple-400 shadow-2xl max-w-2xl w-full max-h-[90%] flex flex-col overflow-hidden">
+        <div class="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-between">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold leading-tight">Flock &amp; Foe Encyclopedia</h2>
+            <p class="text-xs text-purple-100 font-semibold">Meet the heroes of Rush for Ducks and their rival Chirp!</p>
+          </div>
+          <button id="btn-close-roster" class="game-btn bg-white/20 hover:bg-white/30 text-white font-bold w-9 h-9 rounded-xl flex items-center justify-center">
+            ✕
+          </button>
+        </div>
+
+        <div id="roster-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50">
+          <!-- Populated dynamically with Peep, Quack, Hoot, and Chirp -->
+        </div>
+
+        <div class="p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 font-bold">
+          <span>Progress is saved automatically in your browser.</span>
+          <button id="btn-close-roster-bottom" class="game-btn bg-purple-600 text-white px-4 py-1.5 rounded-xl">
+            Got It!
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Touch / Mobile Friendly Controls Bar Below Canvas -->
+  <footer class="w-full max-w-[980px] mt-2.5 sm:mt-3 flex items-center justify-between gap-2 px-1">
+    <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+      <button id="touch-jump" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-amber-400 to-orange-500 text-white font-bold text-base sm:text-lg px-6 py-3 rounded-2xl border-2 border-amber-200 flex items-center justify-center gap-2">
+        <span>⬆️</span>
+        <span>JUMP / FLY</span>
+      </button>
+      <button id="touch-duck" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-sky-500 to-blue-700 text-white font-bold text-base sm:text-lg px-6 py-3 rounded-2xl border-2 border-sky-300 flex items-center justify-center gap-2">
+        <span>⬇️</span>
+        <span>DUCK / DIVE</span>
+      </button>
+      <button id="touch-special" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-purple-500 to-fuchsia-700 text-white font-bold text-base sm:text-lg px-5 py-3 rounded-2xl border-2 border-purple-300 flex items-center justify-center gap-1.5">
+        <span>⚡</span>
+        <span>SPECIAL</span>
+      </button>
+    </div>
+
+    <div class="hidden md:flex items-center gap-3 text-xs font-extrabold text-sky-950/80 bg-white/65 px-3.5 py-2 rounded-xl border border-white">
+      <span>🐣 Peep: Double Jump</span>
+      <span>•</span>
+      <span>🦆 Quack (Lv.3): Air Glide</span>
+      <span>•</span>
+      <span>🦉 Hoot (Lv.10): Triple Flap + Sonic Blast</span>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * RUSH FOR DUCKS
+     * Complete 2D Arcade Endless-Runner / Platformer
+     * Characters:
+     *  - Peep (Circular Yellow Chick) - Unlocked at Level 1
+     *  - Quack (Oval Purple Duck) - Unlocks at Level 3
+     *  - Hoot (Mighty Purple Owl) - Unlocks at Level 10
+     * Enemy:
+     *  - Chirp (Robin) - Swooping red-breasted flying bird
+     */
+
+    // =========================================================================
+    // 1. WEB AUDIO SYNTHESIZER (Retro Chimes, Quacks, Hoots, Jumps)
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        return this.muted;
+      }
+
+      playTone(freq, endFreq, duration, type = 'sine', volume = 0.15, delay = 0) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (endFreq !== null) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + duration);
+        }
+
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      playJump(heroId, jumpNum) {
+        if (heroId === 'peep') {
+          this.playTone(jumpNum === 1 ? 360 : 520, jumpNum === 1 ? 640 : 880, 0.14, 'triangle', 0.16);
+        } else if (heroId === 'quack') {
+          // Cute quack-like pitch bend
+          this.playTone(300, 210, 0.09, 'sawtooth', 0.11);
+          this.playTone(260, 440, 0.14, 'triangle', 0.13, 0.05);
+        } else if (heroId === 'hoot') {
+          // Deep owl wing flap
+          this.playTone(190 + jumpNum * 45, 340 + jumpNum * 50, 0.18, 'sine', 0.18);
+        }
+      }
+
+      playCollect(isFeather = false) {
+        if (isFeather) {
+          this.playTone(660, 990, 0.12, 'sine', 0.14);
+          this.playTone(990, 1320, 0.18, 'triangle', 0.14, 0.09);
+        } else {
+          this.playTone(580, 880, 0.1, 'sine', 0.12);
+        }
+      }
+
+      playHootBlast() {
+        // Mighty Owl Hoot + Sonic Wave
+        this.playTone(340, 250, 0.22, 'sine', 0.22);
+        this.playTone(250, 180, 0.35, 'triangle', 0.22, 0.16);
+        this.playTone(620, 140, 0.32, 'sawtooth', 0.1, 0.05);
+      }
+
+      playHurt() {
+        this.playTone(260, 95, 0.28, 'sawtooth', 0.18);
+        this.playTone(180, 75, 0.25, 'square', 0.12, 0.06);
+      }
+
+      playStunEnemy() {
+        this.playTone(420, 780, 0.16, 'square', 0.14);
+      }
+
+      playLevelUp(isUnlock = false) {
+        const notes = isUnlock
+          ? [523.25, 659.25, 783.99, 1046.5, 1318.5]
+          : [440, 554.37, 659.25, 880];
+        notes.forEach((n, idx) => {
+          this.playTone(n, n * 1.03, 0.18, 'triangle', 0.16, idx * 0.085);
+        });
+      }
+    }
+
+    const sfx = new SoundEngine();
+
+    // =========================================================================
+    // 2. CHARACTER DEFINITIONS & PERSISTENT PROGRESSION
+    // =========================================================================
+    const HEROES = {
+      peep: {
+        id: 'peep',
+        name: 'Peep',
+        title: 'Circular Yellow Chick',
+        unlockLevel: 1,
+        maxHearts: 3,
+        maxJumps: 2,
+        speedMult: 1.0,
+        jumpForce: -690,
+        gravity: 1850,
+        badgeColor: 'bg-yellow-300 text-amber-950',
+        borderColor: 'border-yellow-400',
+        abilityName: 'Agile Double-Jump',
+        description: 'A cheerful, bouncy circular yellow chick ready to dash along the pond!',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <circle cx="40" cy="43" r="26" fill="#FDE047" stroke="#CA8A04" stroke-width="3.5"/>
+            <path d="M35 17 Q40 7 45 17" fill="none" stroke="#CA8A04" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="32" cy="46" rx="9" ry="6" fill="#FACC15" stroke="#CA8A04" stroke-width="2.5"/>
+            <circle cx="49" cy="36" r="4" fill="#1E293B"/>
+            <circle cx="50.5" cy="34.5" r="1.5" fill="#FFFFFF"/>
+            <circle cx="46" cy="43" r="3.5" fill="#FB7185" opacity="0.6"/>
+            <polygon points="62,40 75,44 62,49" fill="#F97316" stroke="#C2410C" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M33 69 L33 75 M29 75 L37 75 M46 69 L46 75 M42 75 L50 75" stroke="#EA580C" stroke-width="3" stroke-linecap="round"/>
+          </svg>`
+      },
+      quack: {
+        id: 'quack',
+        name: 'Quack',
+        title: 'Oval Purple Duck',
+        unlockLevel: 3,
+        maxHearts: 3,
+        maxJumps: 2,
+        speedMult: 1.12,
+        jumpForce: -715,
+        gravity: 1750,
+        badgeColor: 'bg-purple-200 text-purple-950',
+        borderColor: 'border-purple-400',
+        abilityName: 'Air Glide + Fast Rush',
+        description: 'A sleek oval purple duck! Hold Jump in mid-air to glide smoothly over hazards.',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <ellipse cx="38" cy="44" rx="28" ry="21" fill="#A855F7" stroke="#6B21A8" stroke-width="3.5"/>
+            <path d="M30 23 Q34 11 40 22 Q44 13 47 23" fill="none" stroke="#6B21A8" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="32" cy="46" rx="12" ry="7" fill="#C084FC" stroke="#6B21A8" stroke-width="2.5"/>
+            <circle cx="50" cy="37" r="4" fill="#1E293B"/>
+            <circle cx="51.5" cy="35.5" r="1.5" fill="#FFFFFF"/>
+            <path d="M61 40 Q76 38 76 44 Q76 49 61 48 Z" fill="#FB923C" stroke="#C2410C" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M31 64 L29 73 L36 73 M45 64 L44 73 L51 73" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
+      },
+      hoot: {
+        id: 'hoot',
+        name: 'Hoot',
+        title: 'Mighty Purple Owl',
+        unlockLevel: 10,
+        maxHearts: 4,
+        maxJumps: 3,
+        speedMult: 1.18,
+        jumpForce: -730,
+        gravity: 1680,
+        badgeColor: 'bg-fuchsia-200 text-fuchsia-950',
+        borderColor: 'border-fuchsia-500',
+        abilityName: 'Triple Flap + Sonic Hoot Blast',
+        description: 'The mighty purple owl bird! Soars with 3 flaps, 4 hearts, and blasts Chirp away.',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <path d="M20 24 L14 11 L30 19 Z M60 24 L66 11 L50 19 Z" fill="#7E22CE" stroke="#4C1D95" stroke-width="2.5" stroke-linejoin="round"/>
+            <ellipse cx="40" cy="44" rx="25" ry="27" fill="#7E22CE" stroke="#4C1D95" stroke-width="3.5"/>
+            <ellipse cx="40" cy="50" rx="16" ry="17" fill="#DDD6FE"/>
+            <path d="M33 46 L37 50 L41 46 M43 52 L47 56 L51 52 M29 53 L33 57 L37 53" stroke="#6D28D9" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="31" cy="34" r="8.5" fill="#FDE047" stroke="#4C1D95" stroke-width="2.5"/>
+            <circle cx="49" cy="34" r="8.5" fill="#FDE047" stroke="#4C1D95" stroke-width="2.5"/>
+            <circle cx="32" cy="34" r="4" fill="#0F172A"/>
+            <circle cx="48" cy="34" r="4" fill="#0F172A"/>
+            <circle cx="33.5" cy="32.5" r="1.4" fill="#FFFFFF"/>
+            <circle cx="49.5" cy="32.5" r="1.4" fill="#FFFFFF"/>
+            <polygon points="36,39 44,39 40,47" fill="#F59E0B" stroke="#B45309" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M15 38 Q6 48 18 58 M65 38 Q74 48 62 58" fill="#6B21A8" stroke="#4C1D95" stroke-width="3" stroke-linecap="round"/>
+          </svg>`
+      }
+    };
+
+    const ENEMY_CHIRP = {
+      name: 'Chirp',
+      title: 'Swooping Robin Rival',
+      description: 'A feisty red-breasted robin who patrols the skies at low, mid, and high altitudes and dives when you level up!',
+      svg: `
+        <svg viewBox="0 0 80 80" class="w-full h-full">
+          <path d="M52 44 L72 36 L68 48 Z" fill="#78350F" stroke="#451A03" stroke-width="2.5" stroke-linejoin="round"/>
+          <ellipse cx="40" cy="43" rx="22" ry="17" fill="#92400E" stroke="#451A03" stroke-width="3"/>
+          <path d="M20 43 C20 55, 36 60, 48 52 C42 42, 28 38, 20 43 Z" fill="#F97316"/>
+          <path d="M36 36 Q48 22 58 35 Q46 42 36 36 Z" fill="#78350F" stroke="#451A03" stroke-width="2.5"/>
+          <circle cx="28" cy="37" r="3.8" fill="#0F172A"/>
+          <circle cx="27" cy="35.8" r="1.3" fill="#FFFFFF"/>
+          <path d="M24 31 L33 34" stroke="#451A03" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="19,39 7,43 19,46" fill="#FACC15" stroke="#A16207" stroke-width="2" stroke-linejoin="round"/>
+        </svg>`
+    };
+
+    // Load/Save persistent progress
+    const STORAGE_KEY = 'rush_for_ducks_save_v1';
+    let saveData = {
+      highestLevel: 1,
+      highScore: 0,
+      selectedHero: 'peep',
+      unlockedHeroes: ['peep']
+    };
+
+    function loadSaveData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          saveData = {
+            highestLevel: Math.max(1, Number(parsed.highestLevel) || 1),
+            highScore: Math.max(0, Number(parsed.highScore) || 0),
+            selectedHero: HEROES[parsed.selectedHero] ? parsed.selectedHero : 'peep',
+            unlockedHeroes: Array.isArray(parsed.unlockedHeroes) ? parsed.unlockedHeroes : ['peep']
+          };
+          if (!saveData.unlockedHeroes.includes('peep')) saveData.unlockedHeroes.push('peep');
+          if (saveData.highestLevel >= 3 && !saveData.unlockedHeroes.includes('quack')) {
+            saveData.unlockedHeroes.push('quack');
+          }
+          if (saveData.highestLevel >= 10 && !saveData.unlockedHeroes.includes('hoot')) {
+            saveData.unlockedHeroes.push('hoot');
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load save data:', e);
+      }
+    }
+
+    function persistSaveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+      } catch (e) {
+        console.warn('Could not save progress:', e);
+      }
+    }
+
+    loadSaveData();
+
+    // =========================================================================
+    // 3. CANVAS SETUP & RESPONSIVE RESIZING
+    // =========================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gameFrame = document.getElementById('game-frame');
+
+    let viewWidth = 960;
+    let viewHeight = 540;
+    let groundY = 445;
+
+    function resizeCanvas() {
+      const rect = gameFrame.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      viewWidth = Math.max(320, rect.width);
+      viewHeight = Math.max(240, rect.height);
+      canvas.width = Math.floor(viewWidth * dpr);
+      canvas.height = Math.floor(viewHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      groundY = viewHeight - Math.max(68, viewHeight * 0.16);
+      if (player) {
+        if (player.y + player.height > groundY) {
+          player.y = groundY - player.height;
+        }
+      }
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // =========================================================================
+    // 4. GAME STATE & ENTITIES
+    // =========================================================================
+    let gameState = 'START'; // 'START' | 'PLAYING' | 'PAUSED' | 'GAMEOVER'
+    let score = 0;
+    let level = 1;
+    let xp = 0;
+    let xpToNext = 100;
+    let worldSpeed = 340;
+    let distanceTraveled = 0;
+    let screenShake = 0;
+    let bannerTimer = 0;
+    let pendingBannerHero = null;
+
+    // Parallax background objects
+    const clouds = [];
+    const hills = [];
+    const reeds = [];
+
+    function initScenery() {
+      clouds.length = 0;
+      hills.length = 0;
+      reeds.length = 0;
+      for (let i = 0; i < 6; i++) {
+        clouds.push({
+          x: Math.random() * viewWidth,
+          y: 35 + Math.random() * (viewHeight * 0.32),
+          scale: 0.65 + Math.random() * 0.7,
+          speed: 18 + Math.random() * 20
+        });
+      }
+      for (let i = 0; i < 5; i++) {
+        hills.push({
+          x: i * (viewWidth / 3),
+          width: 260 + Math.random() * 140,
+          height: 90 + Math.random() * 65,
+          color: i % 2 === 0 ? '#4ade80' : '#22c55e'
+        });
+      }
+      for (let i = 0; i < 14; i++) {
+        reeds.push({
+          x: i * (viewWidth / 10),
+          h: 18 + Math.random() * 22,
+          sway: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    // Player object
+    const player = {
+      heroId: saveData.selectedHero,
+      x: 110,
+      y: 300,
+      width: 52,
+      height: 52,
+      vy: 0,
+      jumpsUsed: 0,
+      isGrounded: true,
+      isDucking: false,
+      isGliding: false,
+      invulnTimer: 0,
+      hootBlastCooldown: 0,
+      hootBlastActive: 0,
+      hearts: 3,
+      maxHearts: 3,
+      animTime: 0,
+      squashX: 1,
+      squashY: 1
+    };
+
+    function applyHeroStats(heroId, resetHearts = true) {
+      const h = HEROES[heroId] || HEROES.peep;
+      player.heroId = h.id;
+      player.maxHearts = h.maxHearts;
+      if (resetHearts) {
+        player.hearts = h.maxHearts;
+      } else {
+        player.hearts = Math.min(h.maxHearts, Math.max(1, player.hearts));
+      }
+      // Adjust hitbox proportions subtly per character shape
+      if (h.id === 'peep') {
+        player.width = 48;
+        player.height = 48;
+      } else if (h.id === 'quack') {
+        player.width = 58;
+        player.height = 44;
+      } else if (h.id === 'hoot') {
+        player.width = 54;
+        player.height = 58;
+      }
+      if (player.y + player.height > groundY) {
+        player.y = groundY - player.height;
+      }
+    }
+
+    // Active game entities
+    let enemies = []; // Chirp (Robin)
+    let collectibles = []; // Golden Seeds & Golden Feathers
+    let obstacles = []; // Pond Logs / Lily Pads
+    let particles = [];
+    let floatingTexts = [];
+
+    let enemySpawnTimer = 1.6;
+    let collectibleSpawnTimer = 0.9;
+    let obstacleSpawnTimer = 2.4;
+
+    // Input state
+    const keys = {
+      jumpHeld: false,
+      duckHeld: false
+    };
+
+    // =========================================================================
+    // 5. LEVELING & UNLOCK SYSTEM
+    // =========================================================================
+    function getXpRequiredForLevel(lvl) {
+      return Math.floor(95 + (lvl - 1) * 35);
+    }
+
+    function showToastBanner(badge, title, subtitle, unlockHeroId = null) {
+      const toast = document.getElementById('banner-toast');
+      const card = document.getElementById('banner-card');
+      const actionWrap = document.getElementById('banner-action-wrap');
+      const switchBtn = document.getElementById('banner-switch-btn');
+
+      document.getElementById('banner-badge').textContent = badge;
+      document.getElementById('banner-title').textContent = title;
+      document.getElementById('banner-subtitle').textContent = subtitle;
+
+      if (unlockHeroId && HEROES[unlockHeroId]) {
+        pendingBannerHero = unlockHeroId;
+        card.className = 'bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-700 text-white p-3.5 sm:p-4 rounded-2xl border-4 border-yellow-300 shadow-2xl text-center unlock-glow';
+        switchBtn.textContent = `🦆 Switch to ${HEROES[unlockHeroId].name} Now!`;
+        actionWrap.classList.remove('hidden');
+      } else {
+        pendingBannerHero = null;
+        card.className = 'bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white p-3 sm:p-3.5 rounded-2xl border-4 border-amber-300 shadow-2xl text-center';
+        actionWrap.classList.add('hidden');
+      }
+
+      toast.classList.remove('hidden');
+      bannerTimer = unlockHeroId ? 5.5 : 2.8;
+    }
+
+    function addXP(amount) {
+      if (gameState !== 'PLAYING') return;
+      xp += amount;
+
+      while (xp >= xpToNext) {
+        xp -= xpToNext;
+        level += 1;
+        xpToNext = getXpRequiredForLevel(level);
+
+        if (level > saveData.highestLevel) {
+          saveData.highestLevel = level;
+        }
+
+        let unlockedNew = null;
+        if (level === 3 && !saveData.unlockedHeroes.includes('quack')) {
+          saveData.unlockedHeroes.push('quack');
+          unlockedNew = 'quack';
+        } else if (level === 10 && !saveData.unlockedHeroes.includes('hoot')) {
+          saveData.unlockedHeroes.push('hoot');
+          unlockedNew = 'hoot';
+        }
+
+        persistSaveData();
+        updateHeaderStats();
+
+        // Heal 1 heart on level up if damaged
+        if (player.hearts < player.maxHearts) {
+          player.hearts++;
+        }
+
+        if (unlockedNew === 'quack') {
+          sfx.playLevelUp(true);
+          showToastBanner(
+            'NEW HERO UNLOCKED!',
+            'QUACK (Oval Purple Duck) Unlocked!',
+            'Hold Jump in mid-air to Glide + faster rush speed!',
+            'quack'
+          );
+          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#c084fc', 32);
+        } else if (unlockedNew === 'hoot') {
+          sfx.playLevelUp(true);
+          showToastBanner(
+            'MIGHTY HERO UNLOCKED!',
+            'HOOT (Mighty Purple Owl) Unlocked!',
+            'Triple-Flap Flight + 4 Hearts + Owl Sonic Blast!',
+            'hoot'
+          );
+          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#facc15', 42);
+        } else {
+          sfx.playLevelUp(false);
+          const chirpNote = level >= 4 ? 'Chirp is swooping faster!' : 'Keep collecting golden feathers!';
+          showToastBanner(`LEVEL ${level}!`, `Reached Level ${level}!`, chirpNote, null);
+          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#fde047', 18);
+        }
+      }
+      updateHUD();
+    }
+
+    // =========================================================================
+    // 6. PLAYER ACTIONS (JUMP, GLIDE, DUCK, HOOT BLAST)
+    // =========================================================================
+    function triggerJump() {
+      if (gameState !== 'PLAYING') return;
+      const hero = HEROES[player.heroId];
+      keys.jumpHeld = true;
+
+      if (player.jumpsUsed < hero.maxJumps) {
+        player.vy = hero.jumpForce * (player.jumpsUsed === 0 ? 1 : 0.92);
+        player.jumpsUsed++;
+        player.isGrounded = false;
+        player.isDucking = false;
+        player.squashX = 0.78;
+        player.squashY = 1.26;
+        sfx.playJump(hero.id, player.jumpsUsed);
+        spawnDustParticles(player.x + player.width * 0.4, player.y + player.height, hero.id === 'peep' ? '#fef08a' : '#e9d5ff', 8);
+      }
+    }
+
+    function releaseJump() {
+      keys.jumpHeld = false;
+      player.isGliding = false;
+    }
+
+    function setDuck(active) {
+      if (gameState !== 'PLAYING') return;
+      keys.duckHeld = active;
+      if (active) {
+        player.isDucking = true;
+        player.isGliding = false;
+        if (!player.isGrounded) {
+          // Fast dive downward
+          player.vy = Math.max(player.vy, 640);
+        }
+      } else {
+        player.isDucking = false;
+      }
+    }
+
+    function triggerSpecialAbility() {
+      if (gameState !== 'PLAYING') return;
+      if (player.heroId === 'hoot') {
+        if (player.hootBlastCooldown <= 0) {
+          player.hootBlastActive = 0.55;
+          player.hootBlastCooldown = 3.2;
+          screenShake = 8;
+          sfx.playHootBlast();
+          spawnFloatingText(player.x + 20, player.y - 16, 'HOOOOT BLAST!', '#f0abfc');
+
+          // Stun/knock away any nearby Chirp enemies
+          enemies.forEach(en => {
+            const dx = (en.x + en.width / 2) - (player.x + player.width / 2);
+            const dy = (en.y + en.height / 2) - (player.y + player.height / 2);
+            if (Math.hypot(dx, dy) < 270 && !en.stunned) {
+              en.stunned = true;
+              en.vy = -380;
+              en.vx = 260;
+              score += 50;
+              addXP(25);
+              spawnCelebrationParticles(en.x + en.width / 2, en.y + en.height / 2, '#f97316', 14);
+              spawnFloatingText(en.x, en.y - 10, '+50 STUN!', '#fde047');
+            }
+          });
+        }
+      } else if (player.heroId === 'quack') {
+        // Quack mini air-hop / dash burst if midair
+        if (!player.isGrounded) {
+          player.isGliding = true;
+          player.vy = Math.min(player.vy, 60);
+          sfx.playJump('quack', 2);
+        } else {
+          triggerJump();
+        }
+      } else {
+        // Peep does an energetic hop
+        triggerJump();
+      }
+    }
+
+    // =========================================================================
+    // 7. SPAWNERS & COLLISION HELPERS
+    // =========================================================================
+    function spawnChirpEnemy() {
+      // Chirp (Robin) spawns at Low, Mid, or High altitude
+      const lanes = ['low', 'mid', 'high'];
+      const lane = lanes[Math.floor(Math.random() * lanes.length)];
+      let yPos = groundY - 46;
+      if (lane === 'mid') yPos = groundY - 108;
+      if (lane === 'high') yPos = groundY - 175;
+
+      const baseEnemySpeed = worldSpeed * (1.22 + Math.min(0.45, level * 0.035));
+      enemies.push({
+        x: viewWidth + 50,
+        y: yPos,
+        baseY: yPos,
+        width: 52,
+        height: 38,
+        vx: -baseEnemySpeed,
+        vy: 0,
+        lane,
+        wavePhase: Math.random() * Math.PI * 2,
+        wingPhase: 0,
+        canDive: level >= 2 && (lane === 'high' || lane === 'mid') && Math.random() < Math.min(0.65, 0.2 + level * 0.05),
+        hasDived: false,
+        stunned: false
+      });
+    }
+
+    function spawnCollectibleArc() {
+      const count = 3 + Math.floor(Math.random() * 3);
+      const arcHeight = 55 + Math.random() * 85;
+      const startY = groundY - 45 - Math.random() * 75;
+
+      for (let i = 0; i < count; i++) {
+        const isGoldenFeather = (i === Math.floor(count / 2) && Math.random() < 0.42);
+        const offsetY = Math.sin((i / (count - 1 || 1)) * Math.PI) * arcHeight;
+        collectibles.push({
+          x: viewWidth + 40 + i * 44,
+          y: Math.max(75, startY - offsetY),
+          radius: isGoldenFeather ? 16 : 12,
+          type: isGoldenFeather ? 'feather' : 'seed',
+          bobPhase: i * 0.6,
+          collected: false
+        });
+      }
+    }
+
+    function spawnPondObstacle() {
+      // Wooden pond stump / cattail cluster that player can jump over
+      const isTall = level >= 3 && Math.random() < 0.35;
+      obstacles.push({
+        x: viewWidth + 40,
+        y: isTall ? groundY - 56 : groundY - 38,
+        width: isTall ? 40 : 46,
+        height: isTall ? 56 : 38,
+        kind: isTall ? 'stump' : 'lily'
+      });
+    }
+
+    function spawnDustParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x,
+          y,
+          vx: -60 - Math.random() * 120,
+          vy: -30 - Math.random() * 90,
+          size: 3 + Math.random() * 4,
+          color,
+          life: 0.35 + Math.random() * 0.25,
+          maxLife: 0.6
+        });
+      }
+    }
+
+    function spawnCelebrationParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+        const speed = 90 + Math.random() * 210;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 60,
+          size: 4 + Math.random() * 5,
+          color,
+          life: 0.55 + Math.random() * 0.35,
+          maxLife: 0.9
+        });
+      }
+    }
+
+    function spawnFloatingText(x, y, text, color = '#ffffff') {
+      floatingTexts.push({
+        x,
+        y,
+        text,
+        color,
+        life: 0.95
+      });
+    }
+
+    function rectsOverlap(a, b, pad = 6) {
+      return (
+        a.x + pad < b.x + b.width - pad &&
+        a.x + a.width - pad > b.x + pad &&
+        a.y + pad < b.y + b.height - pad &&
+        a.y + a.height - pad > b.y + pad
+      );
+    }
+
+    function damagePlayer() {
+      if (player.invulnTimer > 0) return;
+
+      player.hearts -= 1;
+      player.invulnTimer = 1.45;
+      screenShake = 11;
+      sfx.playHurt();
+      spawnCelebrationParticles(player.x + player.width / 2, player.y + player.height / 2, '#fb7185', 16);
+      spawnFloatingText(player.x, player.y - 14, '-1 ❤️', '#fda4af');
+      updateHUD();
+
+      if (player.hearts <= 0) {
+        triggerGameOver();
+      }
+    }
+
+    // =========================================================================
+    // 8. MAIN UPDATE LOOP (60FPS DELTA-TIME)
+    // =========================================================================
+    function update(dt) {
+      // Animate scenery gently even on start screen
+      const activeSpeed = gameState === 'PLAYING' ? worldSpeed * HEROES[player.heroId].speedMult : 95;
+
+      clouds.forEach(c => {
+        c.x -= c.speed * dt;
+        if (c.x < -140) c.x = viewWidth + 120;
+      });
+
+      hills.forEach(h => {
+        h.x -= activeSpeed * 0.22 * dt;
+        if (h.x + h.width < -40) {
+          h.x = viewWidth + Math.random() * 80;
+        }
+      });
+
+      reeds.forEach(r => {
+        r.x -= activeSpeed * dt;
+        r.sway += dt * 3.2;
+        if (r.x < -30) r.x = viewWidth + 20;
+      });
+
+      if (gameState !== 'PLAYING') return;
+
+      // Update toast banner timer
+      if (bannerTimer > 0) {
+        bannerTimer -= dt;
+        if (bannerTimer <= 0) {
+          document.getElementById('banner-toast').classList.add('hidden');
+        }
+      }
+
+      if (screenShake > 0) {
+        screenShake = Math.max(0, screenShake - dt * 38);
+      }
+
+      // Progressive speed scaling by level
+      worldSpeed = 335 + (level - 1) * 24;
+      const hero = HEROES[player.heroId];
+      const effectiveSpeed = worldSpeed * hero.speedMult;
+
+      // Distance score & passive XP
+      distanceTraveled += effectiveSpeed * dt;
+      score += effectiveSpeed * dt * 0.045;
+      addXP(dt * 8.5);
+
+      // Update player timers
+      player.animTime += dt * 12;
+      if (player.invulnTimer > 0) player.invulnTimer -= dt;
+      if (player.hootBlastCooldown > 0) player.hootBlastCooldown = Math.max(0, player.hootBlastCooldown - dt);
+      if (player.hootBlastActive > 0) player.hootBlastActive = Math.max(0, player.hootBlastActive - dt);
+
+      // Recover squash & stretch smoothly
+      player.squashX += (1 - player.squashX) * Math.min(1, dt * 14);
+      player.squashY += (1 - player.squashY) * Math.min(1, dt * 14);
+
+      // Quack Hover/Glide mechanic when holding jump while falling
+      if (player.heroId === 'quack' && keys.jumpHeld && !player.isGrounded && player.vy > 0 && !player.isDucking) {
+        player.isGliding = true;
+      } else {
+        player.isGliding = false;
+      }
+
+      // Vertical physics
+      let currentGravity = hero.gravity;
+      if (player.isGliding) {
+        currentGravity *= 0.22;
+        player.vy = Math.min(player.vy, 115);
+      }
+
+      player.vy += currentGravity * dt;
+      player.y += player.vy * dt;
+
+      const effectiveHeight = player.isDucking ? player.height * 0.62 : player.height;
+      if (player.y + effectiveHeight >= groundY) {
+        if (!player.isGrounded) {
+          player.squashX = 1.22;
+          player.squashY = 0.8;
+          spawnDustParticles(player.x + player.width * 0.5, groundY, '#bbf7d0', 6);
+        }
+        player.y = groundY - effectiveHeight;
+        player.vy = 0;
+        player.isGrounded = true;
+        player.jumpsUsed = 0;
+        player.isGliding = false;
+      } else {
+        player.isGrounded = false;
+      }
+
+      // Keep ducking aligned to ground
+      if (player.isGrounded) {
+        player.y = groundY - effectiveHeight;
+      }
+
+      // Spawners
+      enemySpawnTimer -= dt;
+      if (enemySpawnTimer <= 0) {
+        spawnChirpEnemy();
+        const minGap = Math.max(0.85, 1.85 - level * 0.08);
+        enemySpawnTimer = minGap + Math.random() * 0.85;
+      }
+
+      collectibleSpawnTimer -= dt;
+      if (collectibleSpawnTimer <= 0) {
+        spawnCollectibleArc();
+        collectibleSpawnTimer = 1.5 + Math.random() * 0.9;
+      }
+
+      obstacleSpawnTimer -= dt;
+      if (obstacleSpawnTimer <= 0) {
+        spawnPondObstacle();
+        obstacleSpawnTimer = Math.max(1.4, 2.6 - level * 0.07) + Math.random() * 1.1;
+      }
+
+      // Player hitbox
+      const pBox = {
+        x: player.x,
+        y: player.y,
+        width: player.width,
+        height: effectiveHeight
+      };
+
+      // Update Collectibles (Golden Seeds & Feathers)
+      collectibles.forEach(item => {
+        item.x -= effectiveSpeed * dt;
+        item.bobPhase += dt * 5;
+        const itemY = item.y + Math.sin(item.bobPhase) * 5;
+
+        const cBox = {
+          x: item.x - item.radius,
+          y: itemY - item.radius,
+          width: item.radius * 2,
+          height: item.radius * 2
+        };
+
+        if (!item.collected && rectsOverlap(pBox, cBox, 2)) {
+          item.collected = true;
+          if (item.type === 'feather') {
+            score += 40;
+            addXP(28);
+            sfx.playCollect(true);
+            spawnCelebrationParticles(item.x, itemY, '#facc15', 12);
+            spawnFloatingText(item.x, itemY - 10, '+40 FEATHER!', '#fef08a');
+          } else {
+            score += 15;
+            addXP(12);
+            sfx.playCollect(false);
+            spawnCelebrationParticles(item.x, itemY, '#fde047', 6);
+            spawnFloatingText(item.x, itemY - 8, '+15', '#ffffff');
+          }
+        }
+      });
+      collectibles = collectibles.filter(c => !c.collected && c.x > -50);
+
+      // Update Pond Obstacles
+      obstacles.forEach(obs => {
+        obs.x -= effectiveSpeed * dt;
+        if (rectsOverlap(pBox, obs, 7)) {
+          if (player.hootBlastActive > 0) {
+            obs.x = -200;
+            spawnCelebrationParticles(obs.x, obs.y, '#a855f7', 12);
+          } else {
+            damagePlayer();
+          }
+        }
+      });
+      obstacles = obstacles.filter(o => o.x + o.width > -60);
+
+      // Update Enemies: Chirp (Robin)
+      enemies.forEach(en => {
+        en.wingPhase += dt * 18;
+        if (en.stunned) {
+          en.x += en.vx * dt;
+          en.y += en.vy * dt;
+          en.vy += 900 * dt;
+          return;
+        }
+
+        en.x += en.vx * dt;
+        en.wavePhase += dt * 4.5;
+
+        // Swoop / Dive behavior as player approaches
+        if (en.canDive && !en.hasDived && en.x < player.x + 290 && en.x > player.x + 40) {
+          en.hasDived = true;
+          en.vy = 230 + level * 12;
+        }
+
+        if (en.hasDived) {
+          en.y += en.vy * dt;
+          if (en.y > groundY - en.height - 6) {
+            en.y = groundY - en.height - 6;
+            en.vy = -140; // Swoop back upward after skim
+          }
+        } else {
+          en.y = en.baseY + Math.sin(en.wavePhase) * 14;
+        }
+
+        // Check collision with player
+        if (rectsOverlap(pBox, en, 7)) {
+          // Can stomp on Chirp from above or smash with Hoot Blast!
+          const isStomping = player.vy > 60 && (pBox.y + pBox.height) < (en.y + en.height * 0.65);
+          if (player.hootBlastActive > 0 || isStomping) {
+            en.stunned = true;
+            en.vy = -340;
+            en.vx = 220;
+            if (isStomping) {
+              player.vy = -480;
+              player.jumpsUsed = 1;
+            }
+            score += 60;
+            addXP(30);
+            sfx.playStunEnemy();
+            spawnCelebrationParticles(en.x + en.width / 2, en.y + en.height / 2, '#fb923c', 16);
+            spawnFloatingText(en.x, en.y - 12, 'BONK! +60', '#fde047');
+          } else {
+            damagePlayer();
+          }
+        }
+      });
+      enemies = enemies.filter(en => en.x > -100 && en.y < viewHeight + 100);
+
+      // Update Particles
+      particles.forEach(p => {
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 450 * dt;
+        p.life -= dt;
+      });
+      particles = particles.filter(p => p.life > 0);
+
+      // Update Floating Texts
+      floatingTexts.forEach(ft => {
+        ft.y -= 48 * dt;
+        ft.life -= dt;
+      });
+      floatingTexts = floatingTexts.filter(ft => ft.life > 0);
+
+      updateHUD();
+    }
+
+    // =========================================================================
+    // 9. CANVAS RENDERING (PARALLAX POND, HEROES, CHIRP ROBIN, FX)
+    // =========================================================================
+    function drawBackground() {
+      // Sky Gradient
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+      skyGrad.addColorStop(0, '#38bdf8');
+      skyGrad.addColorStop(0.55, '#bae6fd');
+      skyGrad.addColorStop(1, '#e0f2fe');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, viewWidth, viewHeight);
+
+      // Warm Sun
+      ctx.save();
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.45)';
+      ctx.beginPath();
+      ctx.arc(viewWidth - 110, 82, 54, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(viewWidth - 110, 82, 36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Fluffy Clouds
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+      clouds.forEach(c => {
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.scale(c.scale, c.scale);
+        ctx.beginPath();
+        ctx.arc(0, 0, 26, 0, Math.PI * 2);
+        ctx.arc(24, -8, 32, 0, Math.PI * 2);
+        ctx.arc(54, 0, 25, 0, Math.PI * 2);
+        ctx.arc(26, 10, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Rolling Meadow Hills
+      hills.forEach(h => {
+        ctx.fillStyle = h.color;
+        ctx.beginPath();
+        ctx.moveTo(h.x, groundY);
+        ctx.quadraticCurveTo(h.x + h.width * 0.5, groundY - h.height, h.x + h.width, groundY);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Pond Reeds & Cattails along the bank
+      reeds.forEach(r => {
+        const tipX = r.x + Math.sin(r.sway) * 5;
+        ctx.strokeStyle = '#15803d';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(r.x, groundY + 4);
+        ctx.lineTo(tipX, groundY - r.h);
+        ctx.stroke();
+
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.ellipse(tipX, groundY - r.h + 4, 3.5, 7, 0.1, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Grass Bank Top Strip
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(0, groundY, viewWidth, 16);
+      ctx.fillStyle = '#16a34a';
+      ctx.fillRect(0, groundY + 12, viewWidth, 6);
+
+      // Sparkling Pond Water Below Grass Bank
+      const waterGrad = ctx.createLinearGradient(0, groundY + 16, 0, viewHeight);
+      waterGrad.addColorStop(0, '#0ea5e9');
+      waterGrad.addColorStop(1, '#0369a1');
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(0, groundY + 16, viewWidth, viewHeight - (groundY + 16));
+
+      // Animated Water Ripples
+      ctx.strokeStyle = 'rgba(224, 242, 254, 0.45)';
+      ctx.lineWidth = 2.5;
+      const rippleOffset = (distanceTraveled * 0.6) % 120;
+      for (let rx = -rippleOffset; rx < viewWidth; rx += 120) {
+        ctx.beginPath();
+        ctx.moveTo(rx + 15, groundY + 32);
+        ctx.lineTo(rx + 65, groundY + 32);
+        ctx.moveTo(rx + 45, groundY + 50);
+        ctx.lineTo(rx + 95, groundY + 50);
+        ctx.stroke();
+      }
+    }
+
+    function drawCollectibles() {
+      collectibles.forEach(item => {
+        const y = item.y + Math.sin(item.bobPhase) * 5;
+        ctx.save();
+        ctx.translate(item.x, y);
+
+        if (item.type === 'feather') {
+          // Golden Feather
+          ctx.rotate(Math.sin(item.bobPhase * 0.7) * 0.25 - 0.3);
+          ctx.fillStyle = '#facc15';
+          ctx.strokeStyle = '#a16207';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 17, 7, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(-20, 0);
+          ctx.lineTo(15, 0);
+          ctx.strokeStyle = '#fef9c3';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        } else {
+          // Golden Corn / Seed
+          ctx.fillStyle = '#fde047';
+          ctx.strokeStyle = '#ca8a04';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 9, 12, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-2, -3, 2.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+    }
+
+    function drawObstacles() {
+      obstacles.forEach(obs => {
+        ctx.save();
+        if (obs.kind === 'stump') {
+          // Mossy Pond Stump
+          ctx.fillStyle = '#92400e';
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(obs.x, obs.y, obs.width, obs.height, [8, 8, 2, 2]);
+          ctx.fill();
+          ctx.stroke();
+
+          // Moss cap
+          ctx.fillStyle = '#4ade80';
+          ctx.beginPath();
+          ctx.roundRect(obs.x - 2, obs.y, obs.width + 4, 11, 6);
+          ctx.fill();
+        } else {
+          // Spiky Cattail / Reed Bush Hazard
+          ctx.fillStyle = '#15803d';
+          ctx.strokeStyle = '#052e16';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(obs.x, obs.y + obs.height);
+          ctx.lineTo(obs.x + 10, obs.y + 6);
+          ctx.lineTo(obs.x + 23, obs.y + obs.height - 8);
+          ctx.lineTo(obs.x + 35, obs.y + 2);
+          ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+    }
+
+    function drawPlayer() {
+      if (player.invulnTimer > 0 && Math.floor(player.invulnTimer * 16) % 2 === 0) {
+        return; // Blink during invulnerability frames
+      }
+
+      const effectiveH = player.isDucking ? player.height * 0.62 : player.height;
+      const cx = player.x + player.width / 2;
+      const cy = player.y + effectiveH / 2;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // Hoot Sonic Blast Aura
+      if (player.hootBlastActive > 0) {
+        const progress = 1 - player.hootBlastActive / 0.55;
+        ctx.strokeStyle = `rgba(217, 70, 239, ${1 - progress})`;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(0, 0, 35 + progress * 195, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Apply squash/stretch and ducking scale
+      const sx = player.squashX * (player.isDucking ? 1.18 : 1);
+      const sy = player.squashY * (player.isDucking ? 0.68 : 1);
+      ctx.scale(sx, sy);
+
+      const runBob = player.isGrounded ? Math.sin(player.animTime * 1.4) * 2.5 : 0;
+      const wingFlap = !player.isGrounded ? Math.sin(player.animTime * 2.5) * 16 : Math.sin(player.animTime) * 4;
+
+      if (player.heroId === 'peep') {
+        // --- PEEP: Circular Yellow Chick ---
+        // Feet
+        const footSwing = player.isGrounded ? Math.sin(player.animTime * 1.5) * 6 : 3;
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-6, 18);
+        ctx.lineTo(-6 + footSwing, 25);
+        ctx.moveTo(6, 18);
+        ctx.lineTo(6 - footSwing, 25);
+        ctx.stroke();
+
+        // Circular Body
+        ctx.fillStyle = '#fde047';
+        ctx.strokeStyle = '#ca8a04';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, runBob, 23, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Head Feather Tuft
+        ctx.beginPath();
+        ctx.moveTo(-3, -22 + runBob);
+        ctx.quadraticCurveTo(0, -32 + runBob, 4, -22 + runBob);
+        ctx.stroke();
+
+        // Wing
+        ctx.save();
+        ctx.translate(-4, 3 + runBob);
+        ctx.rotate((wingFlap * Math.PI) / 180);
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.ellipse(-4, 0, 10, 6.5, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Cute Eye & Blush
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(10, -5 + runBob, 3.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(11.3, -6.3 + runBob, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(251, 113, 133, 0.65)';
+        ctx.beginPath();
+        ctx.arc(7, 2 + runBob, 3.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Orange Beak
+        ctx.fillStyle = '#f97316';
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(21, -3 + runBob);
+        ctx.lineTo(32, 1 + runBob);
+        ctx.lineTo(21, 6 + runBob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+      } else if (player.heroId === 'quack') {
+        // --- QUACK: Oval Purple Duck ---
+        const footSwing = player.isGrounded ? Math.sin(player.animTime * 1.6) * 7 : 4;
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-8, 16);
+        ctx.lineTo(-8 + footSwing, 23);
+        ctx.moveTo(7, 16);
+        ctx.lineTo(7 - footSwing, 23);
+        ctx.stroke();
+
+        // Oval Purple Body
+        ctx.fillStyle = '#a855f7';
+        ctx.strokeStyle = '#6b21a8';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, runBob, 28, 20, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Head Tuft
+        ctx.beginPath();
+        ctx.moveTo(-6, -19 + runBob);
+        ctx.quadraticCurveTo(-2, -30 + runBob, 3, -19 + runBob);
+        ctx.quadraticCurveTo(7, -28 + runBob, 10, -18 + runBob);
+        ctx.stroke();
+
+        // Wing (extends wide when gliding!)
+        ctx.save();
+        ctx.translate(-4, 2 + runBob);
+        ctx.rotate(player.isGliding ? -0.35 : (wingFlap * Math.PI) / 180);
+        ctx.fillStyle = '#c084fc';
+        ctx.beginPath();
+        ctx.ellipse(-4, 0, player.isGliding ? 18 : 12, 7, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Expressive Eye
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(13, -5 + runBob, 3.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(14.3, -6.3 + runBob, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Duck Bill
+        ctx.fillStyle = '#fb923c';
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(24, -3 + runBob);
+        ctx.quadraticCurveTo(38, -5 + runBob, 38, 1 + runBob);
+        ctx.quadraticCurveTo(38, 6 + runBob, 24, 5 + runBob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+      } else if (player.heroId === 'hoot') {
+        // --- HOOT: Mighty Purple Owl Bird ---
+        // Ear Tufts
+        ctx.fillStyle = '#7e22ce';
+        ctx.strokeStyle = '#4c1d95';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-16, -18 + runBob);
+        ctx.lineTo(-22, -31 + runBob);
+        ctx.lineTo(-8, -23 + runBob);
+        ctx.moveTo(16, -18 + runBob);
+        ctx.lineTo(22, -31 + runBob);
+        ctx.lineTo(8, -23 + runBob);
+        ctx.fill();
+        ctx.stroke();
+
+        // Sturdy Owl Body
+        ctx.beginPath();
+        ctx.ellipse(0, runBob, 25, 27, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Lavender Belly Patch
+        ctx.fillStyle = '#ddd6fe';
+        ctx.beginPath();
+        ctx.ellipse(2, 6 + runBob, 15, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Majestic Flapping Wing
+        ctx.save();
+        ctx.translate(-10, 2 + runBob);
+        ctx.rotate((wingFlap * 1.2 * Math.PI) / 180);
+        ctx.fillStyle = '#6b21a8';
+        ctx.beginPath();
+        ctx.ellipse(-6, 4, 12, 18, 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Big Golden Owl Eyes
+        ctx.fillStyle = '#fde047';
+        ctx.strokeStyle = '#4c1d95';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(3, -8 + runBob, 7.5, 0, Math.PI * 2);
+        ctx.arc(16, -8 + runBob, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(4, -8 + runBob, 3.5, 0, Math.PI * 2);
+        ctx.arc(17, -8 + runBob, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(5, -9.5 + runBob, 1.3, 0, Math.PI * 2);
+        ctx.arc(18, -9.5 + runBob, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hooked Owl Beak
+        ctx.fillStyle = '#f59e0b';
+        ctx.strokeStyle = '#b45309';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(7, -3 + runBob);
+        ctx.lineTo(14, -3 + runBob);
+        ctx.lineTo(10.5, 5 + runBob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawEnemies() {
+      // Draw Chirp (Robin)
+      enemies.forEach(en => {
+        ctx.save();
+        ctx.translate(en.x + en.width / 2, en.y + en.height / 2);
+        if (en.stunned) {
+          ctx.rotate(en.wingPhase * 0.3);
+        }
+
+        // Tail feathers
+        ctx.fillStyle = '#78350f';
+        ctx.strokeStyle = '#451a03';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(16, 0);
+        ctx.lineTo(31, -8);
+        ctx.lineTo(29, 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Robin Body
+        ctx.fillStyle = '#92400e';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 22, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Signature Red-Orange Robin Breast
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.ellipse(-6, 4, 14, 11, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Animated Flapping Wing
+        const wingY = Math.sin(en.wingPhase) * 11;
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.moveTo(-4, -3);
+        ctx.quadraticCurveTo(8, -18 + wingY, 18, -2);
+        ctx.quadraticCurveTo(6, 5, -4, -3);
+        ctx.fill();
+        ctx.stroke();
+
+        // Determined Eye + Brow
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-11, -5, 3.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-12, -6, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#451a03';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-15, -10);
+        ctx.lineTo(-7, -7);
+        ctx.stroke();
+
+        // Sharp Beak pointing left toward hero
+        ctx.fillStyle = '#facc15';
+        ctx.strokeStyle = '#a16207';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(-21, -3);
+        ctx.lineTo(-32, 1);
+        ctx.lineTo(-21, 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      });
+    }
+
+    function drawParticlesAndText() {
+      particles.forEach(p => {
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      floatingTexts.forEach(ft => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, ft.life * 1.4));
+        ctx.font = '800 16px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 4;
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      });
+    }
+
+    function render() {
+      ctx.save();
+      if (screenShake > 0) {
+        const dx = (Math.random() - 0.5) * screenShake;
+        const dy = (Math.random() - 0.5) * screenShake;
+        ctx.translate(dx, dy);
+      }
+
+      drawBackground();
+      drawCollectibles();
+      drawObstacles();
+      drawPlayer();
+      drawEnemies();
+      drawParticlesAndText();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 10. UI RENDERING & STATE TRANSITIONS
+    // =========================================================================
+    function updateHeaderStats() {
+      document.getElementById('header-max-level').textContent = saveData.highestLevel;
+    }
+
+    function updateHUD() {
+      const hero = HEROES[player.heroId];
+      document.getElementById('hud-hero-name').textContent = hero.name;
+      document.getElementById('hud-hero-avatar').innerHTML = hero.svg;
+
+      // Hearts display
+      let heartsStr = '';
+      for (let i = 0; i < player.maxHearts; i++) {
+        heartsStr += i < player.hearts ? '❤️' : '🖤';
+      }
+      document.getElementById('hud-hearts').textContent = heartsStr;
+
+      // Level & XP Bar
+      document.getElementById('hud-level').textContent = level;
+      const pct = Math.min(100, Math.floor((xp / xpToNext) * 100));
+      document.getElementById('hud-xp-bar').style.width = `${pct}%`;
+
+      const nextEl = document.getElementById('hud-next-unlock');
+      if (!saveData.unlockedHeroes.includes('quack')) {
+        nextEl.textContent = `Quack unlocks at Lv.3`;
+      } else if (!saveData.unlockedHeroes.includes('hoot')) {
+        nextEl.textContent = `Hoot unlocks at Lv.10`;
+      } else {
+        nextEl.textContent = `All Heroes Unlocked! ★`;
+      }
+
+      // Score
+      document.getElementById('hud-score').textContent = Math.floor(score);
+
+      // Hoot special bar
+      const hootHud = document.getElementById('hud-hoot-power');
+      if (player.heroId === 'hoot') {
+        hootHud.classList.remove('hidden');
+        const readyPct = Math.round(((3.2 - player.hootBlastCooldown) / 3.2) * 100);
+        document.getElementById('hud-hoot-bar').style.width = `${readyPct}%`;
+      } else {
+        hootHud.classList.add('hidden');
+      }
+    }
+
+    function renderStartHeroCards() {
+      const container = document.getElementById('start-hero-cards');
+      container.innerHTML = '';
+
+      Object.values(HEROES).forEach(hero => {
+        const isUnlocked = saveData.unlockedHeroes.includes(hero.id);
+        const isSelected = saveData.selectedHero === hero.id;
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.disabled = !isUnlocked;
+        card.className = `p-3 rounded-2xl border-3 text-left transition flex flex-col justify-between ${
+          isSelected
+            ? 'bg-amber-50 border-amber-500 ring-4 ring-amber-300/60 shadow-md'
+            : isUnlocked
+              ? 'bg-white border-slate-200 hover:border-sky-400 hover:bg-sky-50/50'
+              : 'bg-slate-100 border-slate-200 opacity-75 cursor-not-allowed'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div class="w-12 h-12 rounded-2xl bg-sky-100/80 p-1 border border-sky-200 shrink-0">
+                ${hero.svg}
+              </div>
+              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full ${
+                isUnlocked ? hero.badgeColor : 'bg-slate-300 text-slate-700'
+              }">
+                ${isUnlocked ? (isSelected ? '✓ SELECTED' : 'UNLOCKED') : `🔒 LV.${hero.unlockLevel}`}
+              </span>
+            </div>
+            <div class="font-display font-bold text-base text-slate-900 leading-tight">${hero.name}</div>
+            <div class="text-[11px] font-bold text-slate-500 mb-1">${hero.title}</div>
+          </div>
+          <div class="text-[11px] font-extrabold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-100">
+            ⚡ ${hero.abilityName}
+          </div>
+        `;
+
+        if (isUnlocked) {
+          card.addEventListener('click', () => {
+            saveData.selectedHero = hero.id;
+            persistSaveData();
+            applyHeroStats(hero.id, true);
+            sfx.playJump(hero.id, 1);
+            renderStartHeroCards();
+          });
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderPauseHeroSwitcher() {
+      const container = document.getElementById('pause-hero-switcher');
+      container.innerHTML = '';
+
+      Object.values(HEROES).forEach(hero => {
+        const isUnlocked = saveData.unlockedHeroes.includes(hero.id);
+        const isCurrent = player.heroId === hero.id;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = !isUnlocked;
+        btn.className = `p-2 rounded-2xl border-2 flex flex-col items-center text-center transition ${
+          isCurrent
+            ? 'bg-amber-100 border-amber-500 font-extrabold'
+            : isUnlocked
+              ? 'bg-slate-50 border-slate-200 hover:border-sky-400'
+              : 'bg-slate-100 border-slate-200 opacity-50'
+        }`;
+
+        btn.innerHTML = `
+          <div class="w-10 h-10 mb-1">${hero.svg}</div>
+          <div class="text-xs font-bold text-slate-900">${hero.name}</div>
+          <div class="text-[10px] font-bold text-slate-500">${isUnlocked ? (isCurrent ? 'Active' : 'Switch') : `Lv.${hero.unlockLevel}`}</div>
+        `;
+
+        if (isUnlocked && !isCurrent) {
+          btn.addEventListener('click', () => {
+            switchActiveHeroMidRun(hero.id);
+            renderPauseHeroSwitcher();
+          });
+        }
+        container.appendChild(btn);
+      });
+    }
+
+    function switchActiveHeroMidRun(heroId) {
+      if (!saveData.unlockedHeroes.includes(heroId)) return;
+      saveData.selectedHero = heroId;
+      persistSaveData();
+      applyHeroStats(heroId, false);
+      sfx.playJump(heroId, 2);
+      spawnCelebrationParticles(player.x + player.width / 2, player.y + player.height / 2, '#c084fc', 18);
+      spawnFloatingText(player.x, player.y - 16, `GO ${HEROES[heroId].name.toUpperCase()}!`, '#fde047');
+      updateHUD();
+    }
+
+    function cycleUnlockedHero() {
+      const unlocked = saveData.unlockedHeroes;
+      if (unlocked.length <= 1) {
+        spawnFloatingText(player.x, player.y - 14, 'Reach Lv.3 for Quack!', '#fde047');
+        return;
+      }
+      const idx = unlocked.indexOf(player.heroId);
+      const nextHero = unlocked[(idx + 1) % unlocked.length];
+      switchActiveHeroMidRun(nextHero);
+    }
+
+    function renderRosterModal() {
+      const list = document.getElementById('roster-list');
+      list.innerHTML = '';
+
+      // Render Playable Heroes
+      Object.values(HEROES).forEach(hero => {
+        const isUnlocked = saveData.unlockedHeroes.includes(hero.id);
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-3.5 border-2 border-slate-200 shadow-sm flex gap-3 items-start';
+        card.innerHTML = `
+          <div class="w-16 h-16 rounded-2xl bg-sky-50 border border-sky-200 p-1.5 shrink-0">
+            ${hero.svg}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-1">
+              <h3 class="font-display font-bold text-lg text-slate-900">${hero.name}</h3>
+              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full ${isUnlocked ? 'bg-lime-100 text-lime-800' : 'bg-amber-100 text-amber-800'}">
+                ${isUnlocked ? '✓ Unlocked' : `Unlocks Lv.${hero.unlockLevel}`}
+              </span>
+            </div>
+            <div class="text-xs font-bold text-purple-700 mb-1">${hero.title} • ${hero.abilityName}</div>
+            <p class="text-xs text-slate-600 leading-relaxed">${hero.description}</p>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      // Render Enemy: Chirp (Robin)
+      const enemyCard = document.createElement('div');
+      enemyCard.className = 'bg-rose-50/90 rounded-2xl p-3.5 border-2 border-rose-300 shadow-sm flex gap-3 items-start';
+      enemyCard.innerHTML = `
+        <div class="w-16 h-16 rounded-2xl bg-white border border-rose-200 p-1.5 shrink-0">
+          ${ENEMY_CHIRP.svg}
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between gap-1">
+            <h3 class="font-display font-bold text-lg text-rose-900">${ENEMY_CHIRP.name} (Robin)</h3>
+            <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900">
+              ⚠️ ENEMY
+            </span>
+          </div>
+          <div class="text-xs font-bold text-rose-700 mb-1">${ENEMY_CHIRP.title}</div>
+          <p class="text-xs text-slate-700 leading-relaxed">${ENEMY_CHIRP.description}</p>
+        </div>
+      `;
+      list.appendChild(enemyCard);
+    }
+
+    function startNewGame() {
+      sfx.init();
+      score = 0;
+      level = 1;
+      xp = 0;
+      xpToNext = getXpRequiredForLevel(1);
+      worldSpeed = 335;
+      distanceTraveled = 0;
+      enemies = [];
+      collectibles = [];
+      obstacles = [];
+      particles = [];
+      floatingTexts = [];
+
+      enemySpawnTimer = 1.4;
+      collectibleSpawnTimer = 0.7;
+      obstacleSpawnTimer = 2.2;
+
+      applyHeroStats(saveData.selectedHero, true);
+      player.x = Math.min(115, viewWidth * 0.16);
+      player.y = groundY - player.height;
+      player.vy = 0;
+      player.jumpsUsed = 0;
+      player.isGrounded = true;
+      player.isDucking = false;
+      player.invulnTimer = 0;
+      player.hootBlastCooldown = 0;
+      player.hootBlastActive = 0;
+
+      gameState = 'PLAYING';
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('screen-gameover').classList.add('hidden');
+      document.getElementById('screen-pause').classList.add('hidden');
+      document.getElementById('banner-toast').classList.add('hidden');
+      document.getElementById('hud-overlay').classList.remove('hidden');
+
+      updateHUD();
+      sfx.playJump(player.heroId, 1);
+    }
+
+    function triggerGameOver() {
+      gameState = 'GAMEOVER';
+      const finalScore = Math.floor(score);
+      if (finalScore > saveData.highScore) {
+        saveData.highScore = finalScore;
+      }
+      if (level > saveData.highestLevel) {
+        saveData.highestLevel = level;
+      }
+      persistSaveData();
+      updateHeaderStats();
+
+      document.getElementById('go-score').textContent = finalScore;
+      document.getElementById('go-best').textContent = saveData.highScore;
+      document.getElementById('go-level').textContent = level;
+
+      const hintEl = document.getElementById('go-unlock-hint');
+      if (!saveData.unlockedHeroes.includes('quack')) {
+        hintEl.textContent = `Tip: Reach Level 3 to unlock Quack (the Oval Purple Duck)!`;
+      } else if (!saveData.unlockedHeroes.includes('hoot')) {
+        hintEl.textContent = `Tip: Reach Level 10 to unlock Hoot (the Mighty Purple Owl)!`;
+      } else {
+        hintEl.textContent = `You've unlocked the entire flock: Peep, Quack, and Hoot!`;
+      }
+
+      document.getElementById('hud-overlay').classList.add('hidden');
+      document.getElementById('screen-gameover').classList.remove('hidden');
+    }
+
+    function togglePause() {
+      if (gameState === 'PLAYING') {
+        gameState = 'PAUSED';
+        renderPauseHeroSwitcher();
+        document.getElementById('screen-pause').classList.remove('hidden');
+      } else if (gameState === 'PAUSED') {
+        gameState = 'PLAYING';
+        document.getElementById('screen-pause').classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // 11. EVENT LISTENERS (KEYBOARD, MOUSE, TOUCH, UI BUTTONS)
+    // =========================================================================
+    window.addEventListener('keydown', e => {
+      if (['Space', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'].includes(e.code)) {
+        e.preventDefault();
+      }
+      if (e.repeat) return;
+
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        if (gameState === 'START') {
+          startNewGame();
+        } else if (gameState === 'PLAYING') {
+          triggerJump();
+        }
+      } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        setDuck(true);
+      } else if (e.code === 'KeyE' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        triggerSpecialAbility();
+      } else if (e.code === 'KeyC') {
+        if (gameState === 'PLAYING') cycleUnlockedHero();
+      } else if (e.code === 'KeyP' || e.code === 'Escape') {
+        if (gameState === 'PLAYING' || gameState === 'PAUSED') togglePause();
+      }
+    });
+
+    window.addEventListener('keyup', e => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        releaseJump();
+      } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        setDuck(false);
+      }
+    });
+
+    // Canvas direct tap/click to jump
+    canvas.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (gameState === 'PLAYING') {
+        triggerJump();
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      releaseJump();
+    });
+
+    // Bottom Touch Control Buttons
+    const touchJumpBtn = document.getElementById('touch-jump');
+    touchJumpBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (gameState === 'START') startNewGame();
+      else triggerJump();
+    });
+    touchJumpBtn.addEventListener('pointerup', releaseJump);
+
+    const touchDuckBtn = document.getElementById('touch-duck');
+    touchDuckBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      setDuck(true);
+    });
+    touchDuckBtn.addEventListener('pointerup', () => setDuck(false));
+    touchDuckBtn.addEventListener('pointerleave', () => setDuck(false));
+
+    document.getElementById('touch-special').addEventListener('click', () => {
+      triggerSpecialAbility();
+    });
+
+    // UI Overlay Buttons
+    document.getElementById('btn-start-game').addEventListener('click', startNewGame);
+    document.getElementById('btn-play-again').addEventListener('click', startNewGame);
+    document.getElementById('btn-restart-pause').addEventListener('click', startNewGame);
+    document.getElementById('btn-pause').addEventListener('click', togglePause);
+    document.getElementById('btn-resume').addEventListener('click', togglePause);
+    document.getElementById('hud-switch-btn').addEventListener('click', cycleUnlockedHero);
+
+    document.getElementById('banner-switch-btn').addEventListener('click', () => {
+      if (pendingBannerHero) {
+        switchActiveHeroMidRun(pendingBannerHero);
+        document.getElementById('banner-toast').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('btn-go-menu').addEventListener('click', () => {
+      gameState = 'START';
+      document.getElementById('screen-gameover').classList.add('hidden');
+      renderStartHeroCards();
+      document.getElementById('screen-start').classList.remove('hidden');
+    });
+
+    // Sound Toggle
+    document.getElementById('btn-sound').addEventListener('click', e => {
+      const muted = sfx.toggleMute();
+      e.currentTarget.textContent = muted ? '🔇' : '🔊';
+    });
+
+    // Roster Modal Controls
+    document.getElementById('btn-open-roster').addEventListener('click', () => {
+      if (gameState === 'PLAYING') {
+        togglePause();
+      }
+      renderRosterModal();
+      document.getElementById('modal-roster').classList.remove('hidden');
+    });
+
+    const closeRoster = () => document.getElementById('modal-roster').classList.add('hidden');
+    document.getElementById('btn-close-roster').addEventListener('click', closeRoster);
+    document.getElementById('btn-close-roster-bottom').addEventListener('click', closeRoster);
+
+    // =========================================================================
+    // 12. INITIALIZATION & ANIMATION LOOP
+    // =========================================================================
+    let lastTimestamp = 0;
+
+    function gameLoop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+      lastTimestamp = timestamp;
+
+      update(dt);
+      render();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = function () {
+      resizeCanvas();
+      initScenery();
+      updateHeaderStats();
+      renderStartHeroCards();
+      applyHeroStats(saveData.selectedHero, true);
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
