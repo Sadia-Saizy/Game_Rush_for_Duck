@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rush-for-ducks-v3';
+const CACHE_NAME = 'rush-for-ducks-v4';
 const BASE_PATH = '/Game_Rush_for_Duck/';
 
 const ASSETS_TO_CACHE = [
@@ -8,7 +8,7 @@ const ASSETS_TO_CACHE = [
   `${BASE_PATH}manifest.json`
 ];
 
-// Install: precache core app files and take over promptly
+// Install: precache core app files and activate promptly
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
@@ -16,7 +16,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activate: remove any previous cache versions
+// Activate: remove older cache versions and claim open clients
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames =>
@@ -29,7 +29,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: network-first for HTML/navigation so game updates load fresh, cache-first for static assets
+// Fetch: network-first for HTML/navigation so updates load fresh, cache-first for static assets
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
