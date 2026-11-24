@@ -430,7 +430,6 @@
       const isFileProtocol = window.location.protocol === 'file:';
       const manifestLink = document.getElementById('pwa-manifest-link');
 
-      // Fallback manifest blob if opened directly via file:// or without external manifest
       if (isFileProtocol && manifestLink) {
         try {
           const fallbackManifest = {
@@ -449,7 +448,6 @@
         }
       }
 
-      // Register service worker on HTTP/HTTPS origins (such as GitHub Pages)
       if (!isFileProtocol && 'serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {
@@ -578,18 +576,13 @@
         description: 'A round yellow chick with a bright red crest, upward-looking eyes, and tall black legs ready to dash!',
         svg: `
           <svg viewBox="0 0 80 80" class="w-full h-full">
-            <!-- Long Black Legs -->
             <path d="M33 61 L33 74 L27 76 M45 61 L45 74 L39 76" stroke="#0F172A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <!-- Red Crest -->
             <path d="M25 19 C24 12, 31 11, 33 16 C36 10, 43 11, 43 17 C46 14, 51 17, 48 22 Z" fill="#EF4444" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
-            <!-- Round Yellow Body -->
             <circle cx="39" cy="42" r="21" fill="#FDE047" stroke="#0F172A" stroke-width="3.4"/>
-            <!-- Upward-Looking Cartoon Eyes -->
             <ellipse cx="40" cy="26" rx="6.2" ry="8.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
             <ellipse cx="49" cy="27.5" rx="5.6" ry="7.8" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
             <circle cx="40.8" cy="21.5" r="2.4" fill="#0F172A"/>
             <circle cx="49.8" cy="23" r="2.4" fill="#0F172A"/>
-            <!-- Dark Diagonal Beak -->
             <line x1="49" y1="33" x2="66" y2="26" stroke="#0F172A" stroke-width="4.8" stroke-linecap="round"/>
           </svg>`
       },
@@ -608,49 +601,51 @@
         description: 'A tall vertical-oval purple duck wearing a white sailor hat! Hold Jump to glide, and press Dive mid-air to smash the ground and trigger an earthquake!',
         svg: `
           <svg viewBox="0 0 80 80" class="w-full h-full">
-            <!-- Upright Vertical Oval Body -->
             <ellipse cx="40" cy="46" rx="22" ry="25" fill="#7C5CE6" stroke="#1E1B4B" stroke-width="3.5"/>
-            <!-- White Sailor / Skipper Hat -->
             <path d="M31 20 L33 13 Q43 10 53 13 L55 20 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
             <path d="M28 18 Q43 24 58 18 L56 25 Q43 29 30 25 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
-            <!-- Two Big Touching Cartoon Eyes -->
             <circle cx="38" cy="31" r="6.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
             <circle cx="49" cy="32" r="6.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
             <circle cx="39.5" cy="31.5" r="2.2" fill="#0F172A"/>
             <circle cx="50.5" cy="32.5" r="2.2" fill="#0F172A"/>
-            <!-- Thick Rounded Black Beak Under Eyes -->
             <line x1="28" y1="33" x2="57" y2="42" stroke="#0F172A" stroke-width="6.5" stroke-linecap="round"/>
-            <!-- Feet -->
             <path d="M33 70 L31 76 L39 76 M47 70 L46 76 L54 76" stroke="#0F172A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>`
       },
       hoot: {
         id: 'hoot',
         name: 'Hoot',
-        title: 'Mighty Purple Owl',
+        title: 'Stern Lavender Horned Owl',
         unlockLevel: 10,
         maxHearts: 4,
         maxJumps: 3,
         speedMult: 1.18,
         jumpForce: -730,
         gravity: 1680,
-        badgeColor: 'bg-fuchsia-200 text-fuchsia-950',
+        badgeColor: 'bg-indigo-200 text-indigo-950',
         abilityName: 'Triple Flap + Sonic Hoot Blast',
-        description: 'The mighty purple owl bird! Soars with 3 flaps, 4 hearts, and blasts Chirp away.',
+        description: 'A stern lavender horned owl with slate-gray ear tufts, wing, and talons, fierce yellow eyes, and a dark hooked beak!',
         svg: `
           <svg viewBox="0 0 80 80" class="w-full h-full">
-            <path d="M20 24 L14 11 L30 19 Z M60 24 L66 11 L50 19 Z" fill="#7E22CE" stroke="#4C1D95" stroke-width="2.5" stroke-linejoin="round"/>
-            <ellipse cx="40" cy="44" rx="25" ry="27" fill="#7E22CE" stroke="#4C1D95" stroke-width="3.5"/>
-            <ellipse cx="40" cy="50" rx="16" ry="17" fill="#DDD6FE"/>
-            <path d="M33 46 L37 50 L41 46 M43 52 L47 56 L51 52 M29 53 L33 57 L37 53" stroke="#6D28D9" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <circle cx="31" cy="34" r="8.5" fill="#FDE047" stroke="#4C1D95" stroke-width="2.5"/>
-            <circle cx="49" cy="34" r="8.5" fill="#FDE047" stroke="#4C1D95" stroke-width="2.5"/>
-            <circle cx="32" cy="34" r="4" fill="#0F172A"/>
-            <circle cx="48" cy="34" r="4" fill="#0F172A"/>
-            <circle cx="33.5" cy="32.5" r="1.4" fill="#FFFFFF"/>
-            <circle cx="49.5" cy="32.5" r="1.4" fill="#FFFFFF"/>
-            <polygon points="36,39 44,39 40,47" fill="#F59E0B" stroke="#B45309" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M15 38 Q6 48 18 58 M65 38 Q74 48 62 58" fill="#6B21A8" stroke="#4C1D95" stroke-width="3" stroke-linecap="round"/>
+            <!-- Slate Ear Tufts -->
+            <path d="M25 22 L19 9 L34 17 Z" fill="#525B6B" stroke="#1E1B2E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M51 20 L58 8 L45 16 Z" fill="#525B6B" stroke="#1E1B2E" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Lavender Body -->
+            <path d="M24 22 C24 14, 54 14, 55 24 C56 31, 59 35, 57 42 C56 54, 52 63, 44 67 L22 65 C18 62, 16 56, 20 50 L24 22 Z" fill="#9E9AD6" stroke="#1E1B2E" stroke-width="3" stroke-linejoin="round"/>
+            <!-- Slate Wing on Left -->
+            <path d="M24 27 C15 36, 12 52, 18 63 C25 65, 31 62, 32 54 L24 27 Z" fill="#5A6272" stroke="#1E1B2E" stroke-width="2.6" stroke-linejoin="round"/>
+            <!-- Chest Feather Marks -->
+            <path d="M36 44 C34 46, 34 49, 36 51 M42 44 C40 46, 40 49, 42 51 M48 44 C46 46, 46 49, 48 51 M39 53 C37 55, 37 58, 39 60 M45 53 C43 55, 43 58, 45 60" stroke="#1E1B2E" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Stern Yellow Eyes & Brows -->
+            <ellipse cx="38" cy="29" rx="6.5" ry="6" fill="#F3EA5F" stroke="#1E1B2E" stroke-width="2.2"/>
+            <ellipse cx="49" cy="29" rx="6.5" ry="6" fill="#F3EA5F" stroke="#1E1B2E" stroke-width="2.2"/>
+            <circle cx="39.5" cy="30" r="2.7" fill="#1E1B2E"/>
+            <circle cx="48" cy="30" r="2.7" fill="#1E1B2E"/>
+            <path d="M31 22 L44 26 L56 22" stroke="#1E1B2E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Small Dark Beak -->
+            <path d="M41 33 C41 30, 47 30, 47 34 C47 38, 43 40, 42 37 Z" fill="#464E5E" stroke="#1E1B2E" stroke-width="2" stroke-linejoin="round"/>
+            <!-- Talons -->
+            <path d="M34 65 L33 73 L28 74 M34 73 L33 75 M34 73 L37 75 M45 66 L45 72 L41 73 M45 72 L45 74 M45 72 L49 74" stroke="#3B4252" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </svg>`
       },
       rosie: {
@@ -1169,12 +1164,12 @@
           y: player.y - 24,
           radius: 14,
           maxRadius: 310,
-          color: '#e879f9',
+          color: '#a5b4fc',
           alpha: 0.95
         });
 
-        spawnParticles(player.x + 25, player.y - 24, '#f0abfc', 18, 220);
-        spawnFloatingText(player.x + 20, player.y - 65, 'SONIC HOOT!', '#f5d0fe');
+        spawnParticles(player.x + 25, player.y - 24, '#c7d2fe', 18, 220);
+        spawnFloatingText(player.x + 20, player.y - 65, 'SONIC HOOT!', '#e0e7ff');
 
         obstacles.forEach(obs => {
           if (obs.kind === 'chirp' && obs.x > player.x - 40 && obs.x < player.x + 420) {
@@ -1649,7 +1644,6 @@
       const bob = p.onGround && !p.ducking ? Math.sin(p.animPhase) * 2.5 : 0;
 
       if (p.id === 'peep') {
-        // Red Comb on Top
         ctx.fillStyle = '#ef4444';
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2.4;
@@ -1662,7 +1656,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // Round Yellow Body
         ctx.fillStyle = '#fde047';
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 3.2;
@@ -1671,7 +1664,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // Upward-Looking Cartoon Eyes
         ctx.fillStyle = '#ffffff';
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2.3;
@@ -1685,14 +1677,12 @@
         ctx.fill();
         ctx.stroke();
 
-        // Pupils looking up
         ctx.fillStyle = '#0f172a';
         ctx.beginPath();
         ctx.arc(2.6, -43 + bob, 2.1, 0, Math.PI * 2);
         ctx.arc(11.1, -42 + bob, 2.1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Dark Diagonal Beak
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 4.5;
         ctx.lineCap = 'round';
@@ -1712,7 +1702,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // White Sailor / Skipper Hat with turned-up band
         ctx.fillStyle = '#ffffff';
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2.4;
@@ -1735,7 +1724,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // Two big touching white cartoon eyes
         ctx.fillStyle = '#ffffff';
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2.2;
@@ -1749,14 +1737,12 @@
         ctx.fill();
         ctx.stroke();
 
-        // Pupils
         ctx.fillStyle = '#0f172a';
         ctx.beginPath();
         ctx.arc(2.5, -34.5 + bob, 2, 0, Math.PI * 2);
         ctx.arc(12, -33.5 + bob, 2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Thick rounded black beak right under the eyes
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 5.5;
         ctx.lineCap = 'round';
@@ -1765,44 +1751,98 @@
         ctx.lineTo(18, -26 + bob);
         ctx.stroke();
       } else if (p.id === 'hoot') {
-        ctx.fillStyle = '#7e22ce';
-        ctx.strokeStyle = '#4c1d95';
-        ctx.lineWidth = 3;
+        // Slate Ear Tufts
+        ctx.fillStyle = '#525b6b';
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
-        ctx.ellipse(0, -26 + bob, 21, 24, 0, 0, Math.PI * 2);
+        ctx.moveTo(-8, -43 + bob);
+        ctx.lineTo(-14, -55 + bob);
+        ctx.lineTo(-1, -47 + bob);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(-15, -45 + bob);
-        ctx.lineTo(-21, -56 + bob);
-        ctx.lineTo(-7, -49 + bob);
-        ctx.moveTo(15, -45 + bob);
-        ctx.lineTo(21, -56 + bob);
-        ctx.lineTo(7, -49 + bob);
+        ctx.moveTo(11, -44 + bob);
+        ctx.lineTo(18, -55 + bob);
+        ctx.lineTo(6, -47 + bob);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        [-7, 7].forEach(ex => {
-          ctx.fillStyle = '#fde047';
+        // Lavender Body
+        ctx.fillStyle = '#9e9ad6';
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 2.8;
+        ctx.beginPath();
+        ctx.moveTo(-10, -43 + bob);
+        ctx.quadraticCurveTo(3, -50 + bob, 14, -42 + bob);
+        ctx.quadraticCurveTo(18, -35 + bob, 16, -26 + bob);
+        ctx.quadraticCurveTo(15, -12 + bob, 8, -4 + bob);
+        ctx.lineTo(-12, -5 + bob);
+        ctx.quadraticCurveTo(-16, -12 + bob, -14, -25 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Slate Wing on Left
+        ctx.fillStyle = '#5a6272';
+        ctx.beginPath();
+        ctx.moveTo(-10, -39 + bob);
+        ctx.quadraticCurveTo(-19, -28 + bob, -15, -8 + bob);
+        ctx.quadraticCurveTo(-8, -6 + bob, -6, -15 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Chest Feather Marks
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 1.7;
+        ctx.lineCap = 'round';
+        [
+          [-1, -22], [4, -22], [9, -22],
+          [1.5, -14], [6.5, -14]
+        ].forEach(([fx, fy]) => {
           ctx.beginPath();
-          ctx.arc(ex, -32 + bob, 6.5, 0, Math.PI * 2);
+          ctx.arc(fx, fy + bob, 2.2, -0.7, 0.7);
+          ctx.stroke();
+        });
+
+        // Stern Yellow Eyes
+        [-1, 8.5].forEach((ex, idx) => {
+          ctx.fillStyle = '#f3ea5f';
+          ctx.strokeStyle = '#1e1b2e';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(ex, -35 + bob, 5.2, 4.8, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
 
-          ctx.fillStyle = '#0f172a';
+          ctx.fillStyle = '#1e1b2e';
           ctx.beginPath();
-          ctx.arc(ex + 1.5, -32 + bob, 3, 0, Math.PI * 2);
+          ctx.arc(ex + (idx === 0 ? 1.2 : -0.8), -34.2 + bob, 2.2, 0, Math.PI * 2);
           ctx.fill();
         });
 
-        ctx.fillStyle = '#f59e0b';
+        // Stern Brow Line
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
-        ctx.moveTo(-4, -27 + bob);
-        ctx.lineTo(4, -27 + bob);
-        ctx.lineTo(0, -20 + bob);
+        ctx.moveTo(-7, -41 + bob);
+        ctx.lineTo(3.5, -38 + bob);
+        ctx.lineTo(14, -41 + bob);
+        ctx.stroke();
+
+        // Small Dark Hooked Beak
+        ctx.fillStyle = '#464e5e';
+        ctx.beginPath();
+        ctx.moveTo(1.5, -32 + bob);
+        ctx.quadraticCurveTo(6.5, -33 + bob, 6.5, -29 + bob);
+        ctx.quadraticCurveTo(6.5, -25 + bob, 2.5, -27 + bob);
         ctx.closePath();
         ctx.fill();
+        ctx.stroke();
       } else if (p.id === 'rosie') {
         ctx.fillStyle = '#fff1f2';
         ctx.strokeStyle = '#e11d48';
@@ -1847,8 +1887,12 @@
         ctx.stroke();
       }
 
-      // Legs
-      ctx.strokeStyle = (p.id === 'quack' || p.id === 'peep') ? '#0f172a' : '#ea580c';
+      // Feet / Talons
+      ctx.strokeStyle = (p.id === 'quack' || p.id === 'peep')
+        ? '#0f172a'
+        : p.id === 'hoot'
+          ? '#3b4252'
+          : '#ea580c';
       ctx.lineWidth = p.id === 'peep' ? 3.2 : 2.8;
       ctx.lineCap = 'round';
       const stepOffset = p.onGround ? Math.sin(p.animPhase) * 4 : 2;
