@@ -30,8 +30,3 @@ An arcade endless-runner and platformer built as an installable Progressive Web 
 - `sw.js`: Service worker precaching core files and cleaning up old cache versions on activation.
 - `icon.svg`: `512x512` vector app icon on a light/white background featuring colors from the cast.
 - `README.md`: Project overview, controls, and deployment notes.
-
-## Deployment & Mobile PWA Notes
-1. Push changes to the branch configured for GitHub Pages and verify **Enforce HTTPS** is enabled under **Settings → Pages**.
-2. Open `https://sadia-saizy.github.io/Game_Rush_for_Duck/` (using `https://`) and use **Add to Home Screen** / **Install app** for standalone mobile play.
-3. Bump the cache name in `sw.js` whenever updating cached assets, refresh your browser, and re-add the Home Screen shortcut if an older icon or title remains cached.
