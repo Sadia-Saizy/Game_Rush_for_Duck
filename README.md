@@ -6,8 +6,9 @@ An arcade endless-runner and platformer built as an installable Progressive Web 
 
 📱 **Scan to Play on Mobile:**
 <img width="1170" height="1063" alt="BADD2813-E0B1-4762-A8FA-9637182B98BC_1_201_a" src="https://github.com/user-attachments/assets/c196bcbf-447a-47ff-874c-1a17ef35fde4" />
-
-
+📱 **Scan to Play on Mobile:**
+<br />
+<img width="220" alt="Rush for Ducks QR Code" src="https://github.com/user-attachments/assets/c196bcbf-447a-47ff-874c-1a17ef35fde4" />
 ## Playable Cast & Rival
 - **Peep (Level 1)**: Round yellow chick with a red crest, upward-looking eyes, and tall black legs featuring agile double-jumping.
 - **Quack (Level 3)**: Tall vertical-oval purple duck with a white sailor hat, air gliding, and a mid-air dive ground-smash earthquake.
