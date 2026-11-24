@@ -5,8 +5,6 @@
 An arcade endless-runner and platformer built as an installable Progressive Web App (PWA) and hosted on GitHub Pages.
 
 📱 **Scan to Play on Mobile:**
-<img width="1170" height="1063" alt="BADD2813-E0B1-4762-A8FA-9637182B98BC_1_201_a" src="https://github.com/user-attachments/assets/c196bcbf-447a-47ff-874c-1a17ef35fde4" />
-📱 **Scan to Play on Mobile:**
 <br />
 <img width="220" alt="Rush for Ducks QR Code" src="https://github.com/user-attachments/assets/c196bcbf-447a-47ff-874c-1a17ef35fde4" />
 ## Playable Cast & Rival
