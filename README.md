@@ -1,23 +1,24 @@
-# 🦆 Rush for Ducks
+# Rush for Ducks
 
-A browser-based 2D arcade endless-runner game inspired by my daughter's original game idea and character concepts!
+An arcade endless-runner and platformer built as an installable Progressive Web App (PWA) and hosted on GitHub Pages at `https://sadia-saizy.github.io/Game_Rush_for_Duck/`.
 
-## 🎮 Play Online
-Play directly in your browser: **[Launch Rush for Ducks] (https://sadia-saizy.github.io/Game_Rush_for_Duck/)**
+## Features & Gameplay
+- **Four Playable Heroes**:
+  - **Peep (Level 1)**: Round yellow chick with a red crest, upward-looking eyes, and tall black legs featuring agile double-jumping.
+  - **Quack (Level 3)**: Tall vertical-oval purple duck with a white sailor hat, air gliding, and a mid-air dive ground-smash earthquake.
+  - **Hoot (Level 10)**: Stern lavender horned owl with slate-gray ear tufts, wing, and talons, yellow eyes, and a Sonic Hoot blast.
+  - **Rosie (Level 13)**: Nimble female duck with rosy cheeks and red starry eyes that can scare off rivals.
+- **Rival Hazard — Chirp**: Swooping red-breasted robin patrolling flight paths alongside ground obstacles.
+- **Web Audio Sound Engine**: Synthesized sound effects for jumps, collectibles, abilities, level-ups, and mute toggling.
+- **Mobile & Desktop Controls**: Keyboard (`Space` / `W` / `ArrowUp` to jump, `ArrowDown` / `S` to duck/dive, `E` / `Shift` for special ability, `C` to switch heroes, `P` / `Esc` to pause) as well as touch and swipe controls.
 
-## 🐣 Characters & Progression
-* **Peep** *(Starter Hero)* — A circular yellow chick with a nimble double-jump.
-* **Quack** *(Unlocks at Level 3)* — A sleek vertical-oval purple duck with mid-air gliding and faster speed.
-* **Hoot** *(Unlocks at Level 10)* — The mighty purple owl with triple-flap flight, 4 hearts, and an *Owl Sonic Blast* special ability.
-* **Rosie** *(Unlocks at Level 13)* — A female duck with big red starry eyes whose *Starry Gaze* scares away **Chirp** enemies in a burst of stars.
-* **Chirp (Robin)** *(Enemy)* — Rival red-breasted robins patrolling high, mid, and low flight paths.
+## Project Structure
+- `index.html`: Single-file game application containing the canvas game loop, character rendering, HUD, modals, and sound engine.
+- `manifest.json`: PWA web app manifest configured for standalone launch under `/Game_Rush_for_Duck/`.
+- `sw.js`: Service worker precaching core assets and cleaning up outdated cache versions on activation.
+- `icon.svg`: `512x512` vector app icon with a light/white backdrop and colors representing the cast.
 
-## 🕹️ Controls
-* **Jump / Flap:** `Space`, `W`, `Up Arrow`, or on-screen **Jump** button
-* **Duck / Dive:** `Down Arrow`, `S`, or on-screen **Duck** button
-* **Special Ability (Hoot / Rosie):** `E` or `Shift`
-* **Switch Unlocked Character:** `C` or click a character card in-game
-
-## ✨ Credits
-* **Game Concept & Character Design:** Inspired by my daughter's imagination
-* **Built With:** Single-file HTML5 Canvas, SVG character art, and Web Audio API
+## Deployment & PWA Notes
+1. Push updates to the repository branch configured for GitHub Pages (`https://sadia-saizy.github.io/Game_Rush_for_Duck/`) with **Enforce HTTPS** enabled.
+2. Bump the cache version constant in `sw.js` whenever updating cached assets (`index.html`, `icon.svg`, or `manifest.json`) so existing clients refresh cleanly.
+3. On mobile devices, open the `https://` URL and use **Add to Home Screen** / **Install app** to launch in standalone mode.
