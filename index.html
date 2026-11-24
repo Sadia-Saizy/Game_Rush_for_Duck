@@ -132,15 +132,6 @@
       animation: floatBob 2.4s ease-in-out infinite;
     }
 
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.65); }
-      50% { box-shadow: 0 0 0 12px rgba(250, 204, 21, 0); }
-    }
-
-    .unlock-glow {
-      animation: pulseGlow 1.8s infinite;
-    }
-
     /* Custom Scrollbar for modal */
     ::-webkit-scrollbar {
       width: 6px;
@@ -300,7 +291,7 @@
         <!-- Controls Quick Guide -->
         <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-2.5 mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-sky-900">
           <span>⬆️ <b>Space / W / Tap</b>: Jump &amp; Flap</span>
-          <span>⬇️ <b>Down / S</b>: Duck &amp; Dive</span>
+          <span>⬇️ <b>Down / S</b>: Duck &amp; Dive Smash</span>
           <span>⚡ <b>E / Shift</b>: Hero Special</span>
           <span>↻ <b>C</b>: Switch Bird</span>
         </div>
@@ -431,18 +422,8 @@
     /**
      * RUSH FOR DUCKS
      * Complete 2D Arcade Endless-Runner / Platformer
-     * Characters:
-     *  - Peep (Circular Yellow Chick) - Unlocked at Level 1
-     *  - Quack (Vertical Oval Purple Duck) - Unlocks at Level 3
-     *  - Hoot (Mighty Purple Owl) - Unlocks at Level 10
-     *  - Rosie (Female Duck with Big Red Starry Eyes) - Unlocks at Level 13
-     * Enemy:
-     *  - Chirp (Robin) - Swooping red-breasted flying bird
      */
 
-    // =========================================================================
-    // 1. WEB AUDIO SYNTHESIZER (Retro Chimes, Quacks, Hoots, Starry Gaze)
-    // =========================================================================
     class SoundEngine {
       constructor() {
         this.ctx = null;
@@ -495,14 +476,11 @@
         if (heroId === 'peep') {
           this.playTone(360, jumpNum === 1 ? 640 : 880, 0.14, 'triangle', 0.16);
         } else if (heroId === 'quack') {
-          // Cute quack-like pitch bend
           this.playTone(300, 210, 0.09, 'sawtooth', 0.11);
           this.playTone(260, 440, 0.14, 'triangle', 0.13, 0.05);
         } else if (heroId === 'hoot') {
-          // Deep owl wing flap
           this.playTone(190 + jumpNum * 45, 340 + jumpNum * 50, 0.18, 'sine', 0.18);
         } else if (heroId === 'rosie') {
-          // Sparkling high-pitched female duck hop
           this.playTone(460 + jumpNum * 80, 820 + jumpNum * 90, 0.14, 'triangle', 0.15);
         }
       }
@@ -517,14 +495,12 @@
       }
 
       playHootBlast() {
-        // Mighty Owl Hoot + Sonic Wave
         this.playTone(340, 250, 0.22, 'sine', 0.22);
         this.playTone(250, 180, 0.35, 'triangle', 0.22, 0.16);
         this.playTone(620, 140, 0.32, 'sawtooth', 0.1, 0.05);
       }
 
       playRosieStarryGaze() {
-        // Shimmering starry scare chime
         this.playTone(740, 1180, 0.14, 'sine', 0.16, 0);
         this.playTone(980, 1480, 0.16, 'triangle', 0.15, 0.07);
         this.playTone(1240, 620, 0.22, 'sine', 0.14, 0.15);
@@ -551,9 +527,6 @@
 
     const sfx = new SoundEngine();
 
-    // =========================================================================
-    // 2. CHARACTER DEFINITIONS & PERSISTENT PROGRESSION
-    // =========================================================================
     const HEROES = {
       peep: {
         id: 'peep',
@@ -591,23 +564,24 @@
         jumpForce: -715,
         gravity: 1750,
         badgeColor: 'bg-purple-200 text-purple-950',
-        abilityName: 'Air Glide + Fast Rush',
-        description: 'A tall vertical-oval purple duck! Hold Jump in mid-air to glide smoothly over obstacles.',
+        abilityName: 'Air Glide + Dive Ground Smash Earthquake',
+        description: 'A tall vertical-oval purple duck wearing a white sailor hat! Hold Jump to glide, and press Dive mid-air to smash the ground and trigger an earthquake!',
         svg: `
           <svg viewBox="0 0 80 80" class="w-full h-full">
             <!-- Upright Vertical Oval Body -->
-            <ellipse cx="41" cy="42" rx="20" ry="27" fill="#A855F7" stroke="#6B21A8" stroke-width="3.5"/>
-            <!-- Crown tuft -->
-            <path d="M36 15 Q39 5 43 15 Q47 7 49 16" fill="none" stroke="#6B21A8" stroke-width="3" stroke-linecap="round"/>
-            <!-- Animated Wing -->
-            <ellipse cx="36" cy="44" rx="7" ry="12" fill="#C084FC" stroke="#6B21A8" stroke-width="2.5"/>
-            <!-- Eye -->
-            <circle cx="50" cy="31" r="4" fill="#1E293B"/>
-            <circle cx="51.4" cy="29.6" r="1.4" fill="#FFFFFF"/>
-            <!-- Duck Bill -->
-            <path d="M58 34 Q73 33 73 38 Q73 43 58 42 Z" fill="#FB923C" stroke="#C2410C" stroke-width="2.5" stroke-linejoin="round"/>
+            <ellipse cx="40" cy="46" rx="22" ry="25" fill="#7C5CE6" stroke="#1E1B4B" stroke-width="3.5"/>
+            <!-- White Sailor / Skipper Hat -->
+            <path d="M31 20 L33 13 Q43 10 53 13 L55 20 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
+            <path d="M28 18 Q43 24 58 18 L56 25 Q43 29 30 25 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
+            <!-- Two Big Touching Cartoon Eyes -->
+            <circle cx="38" cy="31" r="6.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
+            <circle cx="49" cy="32" r="6.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
+            <circle cx="39.5" cy="31.5" r="2.2" fill="#0F172A"/>
+            <circle cx="50.5" cy="32.5" r="2.2" fill="#0F172A"/>
+            <!-- Thick Rounded Black Beak Under Eyes -->
+            <line x1="28" y1="33" x2="57" y2="42" stroke="#0F172A" stroke-width="6.5" stroke-linecap="round"/>
             <!-- Feet -->
-            <path d="M34 68 L32 75 L39 75 M47 68 L46 75 L53 75" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M33 70 L31 76 L39 76 M47 70 L46 76 L54 76" stroke="#0F172A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>`
       },
       hoot: {
@@ -654,18 +628,13 @@
         description: 'A nimble female duck with big red starry eyes and rosy cheeks that scare Chirp away in stars!',
         svg: `
           <svg viewBox="0 0 80 80" class="w-full h-full">
-            <!-- Female Duck Body -->
             <ellipse cx="39" cy="45" rx="23" ry="23" fill="#FFF1F2" stroke="#E11D48" stroke-width="3.2"/>
             <ellipse cx="35" cy="48" rx="10" ry="7" fill="#FECDD3" stroke="#E11D48" stroke-width="2"/>
-            <!-- Big Red Starry Eye -->
             <circle cx="49" cy="35" r="9.5" fill="#FFE4E6" stroke="#E11D48" stroke-width="2.5"/>
             <polygon points="49,27.5 51.4,32.5 57,33.2 52.9,37.1 53.9,42.6 49,40 44.1,42.6 45.1,37.1 41,33.2 46.6,32.5" fill="#EF4444" stroke="#991B1B" stroke-width="1.2"/>
             <circle cx="51.5" cy="32.5" r="1.6" fill="#FFFFFF"/>
-            <!-- Soft Rosy Cheek -->
             <ellipse cx="44" cy="45" rx="5.5" ry="3.5" fill="#FB7185" opacity="0.65"/>
-            <!-- Sweet Duck Bill -->
             <path d="M58 41 Q72 40 72 44.5 Q72 49 58 48 Z" fill="#FB923C" stroke="#C2410C" stroke-width="2.3" stroke-linejoin="round"/>
-            <!-- Feet -->
             <path d="M32 67 L30 74 L37 74 M46 67 L45 74 L52 74" stroke="#E11D48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>`
       }
@@ -674,7 +643,7 @@
     const ENEMY_CHIRP = {
       name: 'Chirp',
       title: 'Swooping Robin Rival',
-      description: 'A feisty red-breasted robin who patrols high, mid, and low flight paths and dives as levels rise—or flees when Rosie flashes her red starry eyes!',
+      description: 'A feisty red-breasted robin who patrols high, mid, and low flight paths and dives as levels rise—or flees when Quack triggers an earthquake or Rosie flashes her red starry eyes!',
       svg: `
         <svg viewBox="0 0 80 80" class="w-full h-full">
           <path d="M52 44 L72 36 L68 48 Z" fill="#78350F" stroke="#451A03" stroke-width="2.5" stroke-linejoin="round"/>
@@ -688,7 +657,6 @@
         </svg>`
     };
 
-    // Load/Save persistent progress
     const STORAGE_KEY = 'rush_for_ducks_save_v2';
     let saveData = {
       highestLevel: 1,
@@ -699,20 +667,14 @@
 
     function syncUnlocksWithLevel(lvl) {
       if (!saveData.unlockedHeroes.includes('peep')) saveData.unlockedHeroes.push('peep');
-      if (lvl >= 3 && !saveData.unlockedHeroes.includes('quack')) {
-        saveData.unlockedHeroes.push('quack');
-      }
-      if (lvl >= 10 && !saveData.unlockedHeroes.includes('hoot')) {
-        saveData.unlockedHeroes.push('hoot');
-      }
-      if (lvl >= 13 && !saveData.unlockedHeroes.includes('rosie')) {
-        saveData.unlockedHeroes.push('rosie');
-      }
+      if (lvl >= 3 && !saveData.unlockedHeroes.includes('quack')) saveData.unlockedHeroes.push('quack');
+      if (lvl >= 10 && !saveData.unlockedHeroes.includes('hoot')) saveData.unlockedHeroes.push('hoot');
+      if (lvl >= 13 && !saveData.unlockedHeroes.includes('rosie')) saveData.unlockedHeroes.push('rosie');
     }
 
-    function loadSaveData() {
+    function loadSave() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('rush_for_ducks_save_v1');
+        const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
           saveData = {
@@ -721,1496 +683,273 @@
             selectedHero: HEROES[parsed.selectedHero] ? parsed.selectedHero : 'peep',
             unlockedHeroes: Array.isArray(parsed.unlockedHeroes) ? parsed.unlockedHeroes : ['peep']
           };
-          syncUnlocksWithLevel(saveData.highestLevel);
-          if (!saveData.unlockedHeroes.includes(saveData.selectedHero)) {
-            saveData.selectedHero = 'peep';
-          }
         }
       } catch (e) {
-        console.warn('Could not load save data:', e);
+        // Ignore storage errors
+      }
+      syncUnlocksWithLevel(saveData.highestLevel);
+      if (!saveData.unlockedHeroes.includes(saveData.selectedHero)) {
+        saveData.selectedHero = 'peep';
       }
     }
 
-    function persistSaveData() {
+    function persistSave() {
+      syncUnlocksWithLevel(saveData.highestLevel);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
       } catch (e) {
-        console.warn('Could not save progress:', e);
+        // Ignore storage errors
       }
+      updateHeaderBadges();
     }
 
-    loadSaveData();
+    loadSave();
 
-    // =========================================================================
-    // 3. CANVAS SETUP & RESPONSIVE RESIZING
-    // =========================================================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const gameFrame = document.getElementById('game-frame');
+    const frameEl = document.getElementById('game-frame');
 
-    let viewWidth = 960;
-    let viewHeight = 540;
-    let groundY = 445;
+    let viewW = 960;
+    let viewH = 540;
+    let groundY = 435;
 
     function resizeCanvas() {
-      const rect = gameFrame.getBoundingClientRect();
+      const rect = frameEl.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      viewWidth = Math.max(320, rect.width);
-      viewHeight = Math.max(240, rect.height);
-      canvas.width = Math.floor(viewWidth * dpr);
-      canvas.height = Math.floor(viewHeight * dpr);
+      viewW = Math.max(320, rect.width);
+      viewH = Math.max(240, rect.height);
+      canvas.width = Math.floor(viewW * dpr);
+      canvas.height = Math.floor(viewH * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      groundY = viewHeight - Math.max(68, viewHeight * 0.16);
+      groundY = Math.round(viewH * 0.8);
       if (player) {
-        if (player.y + player.height > groundY) {
-          player.y = groundY - player.height;
+        player.baseGroundY = groundY;
+        if (player.onGround) {
+          player.y = groundY;
         }
       }
     }
 
     window.addEventListener('resize', resizeCanvas);
 
-    // =========================================================================
-    // 4. GAME STATE & ENTITIES
-    // =========================================================================
-    let gameState = 'START'; // 'START' | 'PLAYING' | 'PAUSED' | 'GAMEOVER'
+    let gameState = 'START';
     let score = 0;
-    let level = 1;
     let xp = 0;
-    let xpToNext = 100;
-    let worldSpeed = 340;
-    let distanceTraveled = 0;
+    let xpToNext = 120;
+    let level = 1;
+    let baseSpeed = 310;
+    let worldTime = 0;
     let screenShake = 0;
-    let bannerTimer = 0;
-    let pendingBannerHero = null;
+    let earthquakeTimer = 0;
+    let newlyUnlockedHeroId = null;
 
-    // Parallax background objects
-    const clouds = [];
-    const hills = [];
-    const reeds = [];
+    let jumpHeld = false;
 
-    function initScenery() {
-      clouds.length = 0;
-      hills.length = 0;
-      reeds.length = 0;
-      for (let i = 0; i < 6; i++) {
-        clouds.push({
-          x: Math.random() * viewWidth,
-          y: 35 + Math.random() * (viewHeight * 0.32),
-          scale: 0.65 + Math.random() * 0.7,
-          speed: 18 + Math.random() * 20
-        });
-      }
-      for (let i = 0; i < 5; i++) {
-        hills.push({
-          x: i * (viewWidth / 3),
-          width: 260 + Math.random() * 140,
-          height: 90 + Math.random() * 65,
-          color: i % 2 === 0 ? '#4ade80' : '#22c55e'
-        });
-      }
-      for (let i = 0; i < 14; i++) {
-        reeds.push({
-          x: i * (viewWidth / 10),
-          h: 18 + Math.random() * 22,
-          sway: Math.random() * Math.PI * 2
-        });
-      }
-    }
-
-    // Player object
-    const player = {
-      heroId: saveData.selectedHero,
-      x: 110,
-      y: 300,
-      width: 52,
-      height: 52,
-      vy: 0,
-      jumpsUsed: 0,
-      isGrounded: true,
-      isDucking: false,
-      isGliding: false,
-      invulnTimer: 0,
-      specialCooldown: 0,
-      specialActive: 0,
-      hearts: 3,
-      maxHearts: 3,
-      animTime: 0,
-      squashX: 1,
-      squashY: 1
-    };
-
-    function applyHeroStats(heroId, resetHearts = true) {
-      const h = HEROES[heroId] || HEROES.peep;
-      player.heroId = h.id;
-      player.maxHearts = h.maxHearts;
-      if (resetHearts) {
-        player.hearts = h.maxHearts;
-      } else {
-        player.hearts = Math.min(h.maxHearts, Math.max(1, player.hearts));
-      }
-      // Adjust hitbox proportions per character shape (Quack is a tall vertical oval)
-      if (h.id === 'peep') {
-        player.width = 48;
-        player.height = 48;
-      } else if (h.id === 'quack') {
-        player.width = 44;
-        player.height = 58;
-      } else if (h.id === 'hoot') {
-        player.width = 54;
-        player.height = 58;
-      } else if (h.id === 'rosie') {
-        player.width = 50;
-        player.height = 50;
-      }
-      if (player.y + player.height > groundY) {
-        player.y = groundY - player.height;
-      }
-    }
-
-    // Active game entities
-    let enemies = []; // Chirp (Robin)
-    let collectibles = []; // Golden Seeds & Golden Feathers
-    let obstacles = []; // Pond Logs / Lily Pads
+    let player = null;
+    let obstacles = [];
+    let collectibles = [];
     let particles = [];
+    let shockwaves = [];
     let floatingTexts = [];
+    let clouds = [];
+    let hills = [];
 
-    let enemySpawnTimer = 1.6;
-    let collectibleSpawnTimer = 0.9;
-    let obstacleSpawnTimer = 2.4;
+    let obstacleTimer = 1.2;
+    let collectibleTimer = 0.8;
 
-    // Input state
-    const keys = {
-      jumpHeld: false,
-      duckHeld: false
-    };
+    function createScenery() {
+      clouds = Array.from({ length: 6 }, (_, i) => ({
+        x: (i / 6) * viewW + Math.random() * 120,
+        y: 45 + Math.random() * (groundY * 0.35),
+        scale: 0.65 + Math.random() * 0.65,
+        speed: 18 + Math.random() * 22
+      }));
 
-    // =========================================================================
-    // 5. LEVELING & UNLOCK SYSTEM
-    // =========================================================================
-    function getXpRequiredForLevel(lvl) {
-      return Math.floor(95 + (lvl - 1) * 35);
+      hills = Array.from({ length: 5 }, (_, i) => ({
+        x: i * 260,
+        width: 340 + Math.random() * 90,
+        height: 75 + Math.random() * 55,
+        color: i % 2 === 0 ? '#4ade80' : '#22c55e'
+      }));
     }
 
-    function showToastBanner(badge, title, subtitle, unlockHeroId = null) {
-      const toast = document.getElementById('banner-toast');
-      const card = document.getElementById('banner-card');
-      const actionWrap = document.getElementById('banner-action-wrap');
-      const switchBtn = document.getElementById('banner-switch-btn');
+    function createPlayer(heroId) {
+      const spec = HEROES[heroId] || HEROES.peep;
+      return {
+        id: spec.id,
+        x: Math.min(165, Math.max(85, viewW * 0.17)),
+        y: groundY,
+        baseGroundY: groundY,
+        vy: 0,
+        width: 44,
+        height: 52,
+        onGround: true,
+        jumpsUsed: 0,
+        ducking: false,
+        diving: false,
+        invulnTimer: 0,
+        hearts: spec.maxHearts,
+        maxHearts: spec.maxHearts,
+        specialCharge: 100,
+        starryTimer: 0,
+        animPhase: 0,
+        squashX: 1,
+        squashY: 1
+      };
+    }
 
-      document.getElementById('banner-badge').textContent = badge;
-      document.getElementById('banner-title').textContent = title;
-      document.getElementById('banner-subtitle').textContent = subtitle;
+    function getLevelXpRequirement(lvl) {
+      return Math.round(110 + (lvl - 1) * 45);
+    }
+
+    function getNextUnlockHint(lvl) {
+      if (lvl < 3) return `Next: Quack at Lv.3 (${3 - lvl} lv${3 - lvl === 1 ? '' : 's'})`;
+      if (lvl < 10) return `Next: Hoot at Lv.10 (${10 - lvl} lv${10 - lvl === 1 ? '' : 's'})`;
+      if (lvl < 13) return `Next: Rosie at Lv.13 (${13 - lvl} lv${13 - lvl === 1 ? '' : 's'})`;
+      return 'All 4 Heroes Unlocked!';
+    }
+
+    let bannerTimeout = null;
+
+    function showBanner(badge, title, subtitle, unlockHeroId = null) {
+      const bannerEl = document.getElementById('banner-toast');
+      const badgeEl = document.getElementById('banner-badge');
+      const titleEl = document.getElementById('banner-title');
+      const subEl = document.getElementById('banner-subtitle');
+      const actionWrap = document.getElementById('banner-action-wrap');
+
+      newlyUnlockedHeroId = unlockHeroId;
+      badgeEl.textContent = badge;
+      titleEl.textContent = title;
+      subEl.textContent = subtitle;
 
       if (unlockHeroId && HEROES[unlockHeroId]) {
-        pendingBannerHero = unlockHeroId;
-        card.className = 'bg-gradient-to-r from-amber-500 via-purple-600 to-rose-600 text-white p-3.5 sm:p-4 rounded-2xl border-4 border-yellow-300 shadow-2xl text-center unlock-glow';
-        switchBtn.textContent = `✨ Switch to ${HEROES[unlockHeroId].name} Now!`;
         actionWrap.classList.remove('hidden');
+        document.getElementById('banner-switch-btn').textContent = `Switch to ${HEROES[unlockHeroId].name} Now!`;
       } else {
-        pendingBannerHero = null;
-        card.className = 'bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white p-3 sm:p-3.5 rounded-2xl border-4 border-amber-300 shadow-2xl text-center';
         actionWrap.classList.add('hidden');
       }
 
-      toast.classList.remove('hidden');
-      bannerTimer = unlockHeroId ? 5.5 : 2.8;
+      bannerEl.classList.remove('hidden');
+      if (bannerTimeout) clearTimeout(bannerTimeout);
+      bannerTimeout = setTimeout(() => {
+        bannerEl.classList.add('hidden');
+      }, unlockHeroId ? 4500 : 2400);
     }
 
-    function addXP(amount) {
-      if (gameState !== 'PLAYING') return;
-      xp += amount;
-
-      while (xp >= xpToNext) {
-        xp -= xpToNext;
-        level += 1;
-        xpToNext = getXpRequiredForLevel(level);
-
-        if (level > saveData.highestLevel) {
-          saveData.highestLevel = level;
-        }
-
-        const prevCount = saveData.unlockedHeroes.length;
-        syncUnlocksWithLevel(level);
-        let unlockedNew = null;
-        if (saveData.unlockedHeroes.length > prevCount) {
-          unlockedNew = saveData.unlockedHeroes[saveData.unlockedHeroes.length - 1];
-        }
-
-        persistSaveData();
-        updateHeaderStats();
-
-        // Heal 1 heart on level up if damaged
-        if (player.hearts < player.maxHearts) {
-          player.hearts++;
-        }
-
-        if (unlockedNew === 'quack') {
-          sfx.playLevelUp(true);
-          showToastBanner(
-            'NEW HERO UNLOCKED!',
-            'QUACK (Vertical Oval Purple Duck) Unlocked!',
-            'Hold Jump in mid-air to Glide + faster rush speed!',
-            'quack'
-          );
-          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#c084fc', 32);
-        } else if (unlockedNew === 'hoot') {
-          sfx.playLevelUp(true);
-          showToastBanner(
-            'MIGHTY HERO UNLOCKED!',
-            'HOOT (Mighty Purple Owl) Unlocked!',
-            'Triple-Flap Flight + 4 Hearts + Owl Sonic Blast!',
-            'hoot'
-          );
-          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#facc15', 42);
-        } else if (unlockedNew === 'rosie') {
-          sfx.playLevelUp(true);
-          showToastBanner(
-            'STARRY HERO UNLOCKED!',
-            'ROSIE (Starry-Eyed Female Duck) Unlocked!',
-            'Big red starry eyes scare Chirp away in a flash of stars!',
-            'rosie'
-          );
-          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#fb7185', 44);
-        } else {
-          sfx.playLevelUp(false);
-          const chirpNote = level >= 4 ? 'Chirp is swooping faster!' : 'Keep collecting golden feathers!';
-          showToastBanner(`LEVEL ${level}!`, `Reached Level ${level}!`, chirpNote, null);
-          spawnCelebrationParticles(player.x + player.width / 2, player.y, '#fde047', 18);
-        }
-      }
-      updateHUD();
-    }
-
-    // =========================================================================
-    // 6. PLAYER ACTIONS (JUMP, GLIDE, DUCK, HOOT BLAST, ROSIE STARRY GAZE)
-    // =========================================================================
-    function triggerJump() {
-      if (gameState !== 'PLAYING') return;
-      const hero = HEROES[player.heroId];
-      keys.jumpHeld = true;
-
-      if (player.jumpsUsed < hero.maxJumps) {
-        player.vy = hero.jumpForce * (player.jumpsUsed === 0 ? 1 : 0.92);
-        player.jumpsUsed++;
-        player.isGrounded = false;
-        player.isDucking = false;
-        player.squashX = 0.78;
-        player.squashY = 1.26;
-        sfx.playJump(hero.id, player.jumpsUsed);
-        const puffColor = hero.id === 'peep' ? '#fef08a' : hero.id === 'rosie' ? '#fecdd3' : '#e9d5ff';
-        spawnDustParticles(player.x + player.width * 0.4, player.y + player.height, puffColor, 8);
-      }
-    }
-
-    function releaseJump() {
-      keys.jumpHeld = false;
-      player.isGliding = false;
-    }
-
-    function setDuck(active) {
-      if (gameState !== 'PLAYING') return;
-      keys.duckHeld = active;
-      if (active) {
-        player.isDucking = true;
-        player.isGliding = false;
-        if (!player.isGrounded) {
-          player.vy = Math.max(player.vy, 640);
-        }
-      } else {
-        player.isDucking = false;
-      }
-    }
-
-    function scareNearbyChirp(radius, labelText, colorHex) {
-      let scaredCount = 0;
-      enemies.forEach(en => {
-        const dx = (en.x + en.width / 2) - (player.x + player.width / 2);
-        const dy = (en.y + en.height / 2) - (player.y + player.height / 2);
-        if (Math.hypot(dx, dy) < radius && !en.stunned && !en.scared) {
-          en.scared = true;
-          en.vy = -290;
-          en.vx = 340; // Flees rapidly to the right away from Rosie's starry gaze
-          scaredCount++;
-          score += 55;
-          addXP(28);
-          spawnCelebrationParticles(en.x + en.width / 2, en.y + en.height / 2, colorHex, 16);
-          spawnFloatingText(en.x, en.y - 12, 'SCARED! +55', '#fda4af');
-        }
-      });
-      if (scaredCount > 0) {
-        spawnFloatingText(player.x + 25, player.y - 22, labelText, colorHex);
-      }
-    }
-
-    function triggerSpecialAbility() {
-      if (gameState !== 'PLAYING') return;
-      if (player.heroId === 'hoot') {
-        if (player.specialCooldown <= 0) {
-          player.specialActive = 0.55;
-          player.specialCooldown = 3.2;
-          screenShake = 8;
-          sfx.playHootBlast();
-          spawnFloatingText(player.x + 20, player.y - 16, 'HOOOOT BLAST!', '#f0abfc');
-
-          enemies.forEach(en => {
-            const dx = (en.x + en.width / 2) - (player.x + player.width / 2);
-            const dy = (en.y + en.height / 2) - (player.y + player.height / 2);
-            if (Math.hypot(dx, dy) < 270 && !en.stunned && !en.scared) {
-              en.stunned = true;
-              en.vy = -380;
-              en.vx = 260;
-              score += 50;
-              addXP(25);
-              spawnCelebrationParticles(en.x + en.width / 2, en.y + en.height / 2, '#f97316', 14);
-              spawnFloatingText(en.x, en.y - 10, '+50 STUN!', '#fde047');
-            }
-          });
-        }
-      } else if (player.heroId === 'rosie') {
-        if (player.specialCooldown <= 0) {
-          player.specialActive = 0.65;
-          player.specialCooldown = 2.8;
-          sfx.playRosieStarryGaze();
-          spawnCelebrationParticles(player.x + player.width / 2, player.y + player.height / 2, '#f43f5e', 24);
-          scareNearbyChirp(310, '★ STARRY GAZE! ★', '#fb7185');
-        }
-      } else if (player.heroId === 'quack') {
-        if (!player.isGrounded) {
-          player.isGliding = true;
-          player.vy = Math.min(player.vy, 60);
-          sfx.playJump('quack', 2);
-        } else {
-          triggerJump();
-        }
-      } else {
-        triggerJump();
-      }
-    }
-
-    // =========================================================================
-    // 7. SPAWNERS & COLLISION HELPERS
-    // =========================================================================
-    function spawnChirpEnemy() {
-      const lanes = ['low', 'mid', 'high'];
-      const lane = lanes[Math.floor(Math.random() * lanes.length)];
-      let yPos = groundY - 46;
-      if (lane === 'mid') yPos = groundY - 108;
-      if (lane === 'high') yPos = groundY - 175;
-
-      const baseEnemySpeed = worldSpeed * (1.22 + Math.min(0.45, level * 0.035));
-      enemies.push({
-        x: viewWidth + 50,
-        y: yPos,
-        baseY: yPos,
-        width: 52,
-        height: 38,
-        vx: -baseEnemySpeed,
-        vy: 0,
-        lane,
-        wavePhase: Math.random() * Math.PI * 2,
-        wingPhase: 0,
-        canDive: level >= 2 && (lane === 'high' || lane === 'mid') && Math.random() < Math.min(0.65, 0.2 + level * 0.05),
-        hasDived: false,
-        stunned: false,
-        scared: false
-      });
-    }
-
-    function spawnCollectibleArc() {
-      const count = 3 + Math.floor(Math.random() * 3);
-      const arcHeight = 55 + Math.random() * 85;
-      const startY = groundY - 45 - Math.random() * 75;
-
-      for (let i = 0; i < count; i++) {
-        const isGoldenFeather = (i === Math.floor(count / 2) && Math.random() < 0.42);
-        const offsetY = Math.sin((i / (count - 1 || 1)) * Math.PI) * arcHeight;
-        collectibles.push({
-          x: viewWidth + 40 + i * 44,
-          y: Math.max(75, startY - offsetY),
-          radius: isGoldenFeather ? 16 : 12,
-          type: isGoldenFeather ? 'feather' : 'seed',
-          bobPhase: i * 0.6,
-          collected: false
-        });
-      }
-    }
-
-    function spawnPondObstacle() {
-      const isTall = level >= 3 && Math.random() < 0.35;
-      obstacles.push({
-        x: viewWidth + 40,
-        y: isTall ? groundY - 56 : groundY - 38,
-        width: isTall ? 40 : 46,
-        height: isTall ? 56 : 38,
-        kind: isTall ? 'stump' : 'lily'
-      });
-    }
-
-    function spawnDustParticles(x, y, color, count) {
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x,
-          y,
-          vx: -60 - Math.random() * 120,
-          vy: -30 - Math.random() * 90,
-          size: 3 + Math.random() * 4,
-          color,
-          life: 0.35 + Math.random() * 0.25,
-          maxLife: 0.6
-        });
-      }
-    }
-
-    function spawnCelebrationParticles(x, y, color, count) {
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
-        const speed = 90 + Math.random() * 210;
-        particles.push({
-          x,
-          y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 60,
-          size: 4 + Math.random() * 5,
-          color,
-          life: 0.55 + Math.random() * 0.35,
-          maxLife: 0.9
-        });
-      }
-    }
-
-    function spawnFloatingText(x, y, text, color = '#ffffff') {
-      floatingTexts.push({
-        x,
-        y,
-        text,
-        color,
-        life: 0.95
-      });
-    }
-
-    function rectsOverlap(a, b, pad = 6) {
-      return (
-        a.x + pad < b.x + b.width - pad &&
-        a.x + a.width - pad > b.x + pad &&
-        a.y + pad < b.y + b.height - pad &&
-        a.y + a.height - pad > b.y + pad
-      );
-    }
-
-    function damagePlayer() {
-      if (player.invulnTimer > 0) return;
-
-      player.hearts -= 1;
-      player.invulnTimer = 1.45;
-      screenShake = 11;
-      sfx.playHurt();
-      spawnCelebrationParticles(player.x + player.width / 2, player.y + player.height / 2, '#fb7185', 16);
-      spawnFloatingText(player.x, player.y - 14, '-1 ❤️', '#fda4af');
-      updateHUD();
-
-      if (player.hearts <= 0) {
-        triggerGameOver();
-      }
-    }
-
-    // =========================================================================
-    // 8. MAIN UPDATE LOOP (60FPS DELTA-TIME)
-    // =========================================================================
-    function update(dt) {
-      const activeSpeed = gameState === 'PLAYING' ? worldSpeed * HEROES[player.heroId].speedMult : 95;
-
-      clouds.forEach(c => {
-        c.x -= c.speed * dt;
-        if (c.x < -140) c.x = viewWidth + 120;
-      });
-
-      hills.forEach(h => {
-        h.x -= activeSpeed * 0.22 * dt;
-        if (h.x + h.width < -40) {
-          h.x = viewWidth + Math.random() * 80;
-        }
-      });
-
-      reeds.forEach(r => {
-        r.x -= activeSpeed * dt;
-        r.sway += dt * 3.2;
-        if (r.x < -30) r.x = viewWidth + 20;
-      });
-
-      if (gameState !== 'PLAYING') return;
-
-      if (bannerTimer > 0) {
-        bannerTimer -= dt;
-        if (bannerTimer <= 0) {
-          document.getElementById('banner-toast').classList.add('hidden');
-        }
-      }
-
-      if (screenShake > 0) {
-        screenShake = Math.max(0, screenShake - dt * 38);
-      }
-
-      worldSpeed = 335 + (level - 1) * 24;
-      const hero = HEROES[player.heroId];
-      const effectiveSpeed = worldSpeed * hero.speedMult;
-
-      distanceTraveled += effectiveSpeed * dt;
-      score += effectiveSpeed * dt * 0.045;
-      addXP(dt * 8.5);
-
-      player.animTime += dt * 12;
-      if (player.invulnTimer > 0) player.invulnTimer -= dt;
-      if (player.specialCooldown > 0) player.specialCooldown = Math.max(0, player.specialCooldown - dt);
-      if (player.specialActive > 0) player.specialActive = Math.max(0, player.specialActive - dt);
-
-      // Rosie's passive starry scare burst when Chirp gets close
-      if (player.heroId === 'rosie' && player.specialCooldown <= 0.4) {
-        let nearChirp = false;
-        enemies.forEach(en => {
-          if (!en.stunned && !en.scared) {
-            const dist = Math.hypot((en.x + en.width / 2) - (player.x + player.width / 2), (en.y + en.height / 2) - (player.y + player.height / 2));
-            if (dist < 145) nearChirp = true;
-          }
-        });
-        if (nearChirp) {
-          triggerSpecialAbility();
-        }
-      }
-
-      player.squashX += (1 - player.squashX) * Math.min(1, dt * 14);
-      player.squashY += (1 - player.squashY) * Math.min(1, dt * 14);
-
-      if (player.heroId === 'quack' && keys.jumpHeld && !player.isGrounded && player.vy > 0 && !player.isDucking) {
-        player.isGliding = true;
-      } else {
-        player.isGliding = false;
-      }
-
-      let currentGravity = hero.gravity;
-      if (player.isGliding) {
-        currentGravity *= 0.22;
-        player.vy = Math.min(player.vy, 115);
-      }
-
-      player.vy += currentGravity * dt;
-      player.y += player.vy * dt;
-
-      const effectiveHeight = player.isDucking ? player.height * 0.62 : player.height;
-      if (player.y + effectiveHeight >= groundY) {
-        if (!player.isGrounded) {
-          player.squashX = 1.22;
-          player.squashY = 0.8;
-          spawnDustParticles(player.x + player.width * 0.5, groundY, '#bbf7d0', 6);
-        }
-        player.y = groundY - effectiveHeight;
-        player.vy = 0;
-        player.isGrounded = true;
-        player.jumpsUsed = 0;
-        player.isGliding = false;
-      } else {
-        player.isGrounded = false;
-      }
-
-      if (player.isGrounded) {
-        player.y = groundY - effectiveHeight;
-      }
-
-      enemySpawnTimer -= dt;
-      if (enemySpawnTimer <= 0) {
-        spawnChirpEnemy();
-        const minGap = Math.max(0.85, 1.85 - level * 0.08);
-        enemySpawnTimer = minGap + Math.random() * 0.85;
-      }
-
-      collectibleSpawnTimer -= dt;
-      if (collectibleSpawnTimer <= 0) {
-        spawnCollectibleArc();
-        collectibleSpawnTimer = 1.5 + Math.random() * 0.9;
-      }
-
-      obstacleSpawnTimer -= dt;
-      if (obstacleSpawnTimer <= 0) {
-        spawnPondObstacle();
-        obstacleSpawnTimer = Math.max(1.4, 2.6 - level * 0.07) + Math.random() * 1.1;
-      }
-
-      const pBox = {
-        x: player.x,
-        y: player.y,
-        width: player.width,
-        height: effectiveHeight
-      };
-
-      collectibles.forEach(item => {
-        item.x -= effectiveSpeed * dt;
-        item.bobPhase += dt * 5;
-        const itemY = item.y + Math.sin(item.bobPhase) * 5;
-
-        const cBox = {
-          x: item.x - item.radius,
-          y: itemY - item.radius,
-          width: item.radius * 2,
-          height: item.radius * 2
-        };
-
-        if (!item.collected && rectsOverlap(pBox, cBox, 2)) {
-          item.collected = true;
-          if (item.type === 'feather') {
-            score += 40;
-            addXP(28);
-            sfx.playCollect(true);
-            spawnCelebrationParticles(item.x, itemY, '#facc15', 12);
-            spawnFloatingText(item.x, itemY - 10, '+40 FEATHER!', '#fef08a');
-          } else {
-            score += 15;
-            addXP(12);
-            sfx.playCollect(false);
-            spawnCelebrationParticles(item.x, itemY, '#fde047', 6);
-            spawnFloatingText(item.x, itemY - 8, '+15', '#ffffff');
-          }
-        }
-      });
-      collectibles = collectibles.filter(c => !c.collected && c.x > -50);
-
-      obstacles.forEach(obs => {
-        obs.x -= effectiveSpeed * dt;
-        if (rectsOverlap(pBox, obs, 7)) {
-          if (player.specialActive > 0) {
-            obs.x = -200;
-            spawnCelebrationParticles(obs.x, obs.y, '#a855f7', 12);
-          } else {
-            damagePlayer();
-          }
-        }
-      });
-      obstacles = obstacles.filter(o => o.x + o.width > -60);
-
-      enemies.forEach(en => {
-        en.wingPhase += dt * (en.scared ? 28 : 18);
-        if (en.stunned) {
-          en.x += en.vx * dt;
-          en.y += en.vy * dt;
-          en.vy += 900 * dt;
-          return;
-        }
-        if (en.scared) {
-          en.x += en.vx * dt;
-          en.y += en.vy * dt;
-          en.vy -= 180 * dt;
-          return;
-        }
-
-        en.x += en.vx * dt;
-        en.wavePhase += dt * 4.5;
-
-        if (en.canDive && !en.hasDived && en.x < player.x + 290 && en.x > player.x + 40) {
-          en.hasDived = true;
-          en.vy = 230 + level * 12;
-        }
-
-        if (en.hasDived) {
-          en.y += en.vy * dt;
-          if (en.y > groundY - en.height - 6) {
-            en.y = groundY - en.height - 6;
-            en.vy = -140;
-          }
-        } else {
-          en.y = en.baseY + Math.sin(en.wavePhase) * 14;
-        }
-
-        if (rectsOverlap(pBox, en, 7)) {
-          const isStomping = player.vy > 60 && (pBox.y + pBox.height) < (en.y + en.height * 0.65);
-          if ((player.specialActive > 0 && player.heroId === 'hoot') || isStomping) {
-            en.stunned = true;
-            en.vy = -340;
-            en.vx = 220;
-            if (isStomping) {
-              player.vy = -480;
-              player.jumpsUsed = 1;
-            }
-            score += 60;
-            addXP(30);
-            sfx.playStunEnemy();
-            spawnCelebrationParticles(en.x + en.width / 2, en.y + en.height / 2, '#fb923c', 16);
-            spawnFloatingText(en.x, en.y - 12, 'BONK! +60', '#fde047');
-          } else {
-            damagePlayer();
-          }
-        }
-      });
-      enemies = enemies.filter(en => en.x > -120 && en.x < viewWidth + 240 && en.y > -160 && en.y < viewHeight + 120);
-
-      particles.forEach(p => {
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.vy += 450 * dt;
-        p.life -= dt;
-      });
-      particles = particles.filter(p => p.life > 0);
-
-      floatingTexts.forEach(ft => {
-        ft.y -= 48 * dt;
-        ft.life -= dt;
-      });
-      floatingTexts = floatingTexts.filter(ft => ft.life > 0);
-
-      updateHUD();
-    }
-
-    // =========================================================================
-    // 9. CANVAS RENDERING (PARALLAX POND, HEROES, CHIRP ROBIN, FX)
-    // =========================================================================
-    function drawStar(cx, cy, spikes, outerR, innerR, fillHex, strokeHex = null) {
-      let rot = (Math.PI / 2) * 3;
-      const step = Math.PI / spikes;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - outerR);
-      for (let i = 0; i < spikes; i++) {
-        ctx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
-        rot += step;
-        ctx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
-        rot += step;
-      }
-      ctx.closePath();
-      ctx.fillStyle = fillHex;
-      ctx.fill();
-      if (strokeHex) {
-        ctx.strokeStyle = strokeHex;
-        ctx.lineWidth = 1.4;
-        ctx.stroke();
-      }
-    }
-
-    function drawBackground() {
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
-      skyGrad.addColorStop(0, '#38bdf8');
-      skyGrad.addColorStop(0.55, '#bae6fd');
-      skyGrad.addColorStop(1, '#e0f2fe');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, viewWidth, viewHeight);
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(254, 240, 138, 0.45)';
-      ctx.beginPath();
-      ctx.arc(viewWidth - 110, 82, 54, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#fde047';
-      ctx.beginPath();
-      ctx.arc(viewWidth - 110, 82, 36, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-      clouds.forEach(c => {
-        ctx.save();
-        ctx.translate(c.x, c.y);
-        ctx.scale(c.scale, c.scale);
-        ctx.beginPath();
-        ctx.arc(0, 0, 26, 0, Math.PI * 2);
-        ctx.arc(24, -8, 32, 0, Math.PI * 2);
-        ctx.arc(54, 0, 25, 0, Math.PI * 2);
-        ctx.arc(26, 10, 26, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      });
-
-      hills.forEach(h => {
-        ctx.fillStyle = h.color;
-        ctx.beginPath();
-        ctx.moveTo(h.x, groundY);
-        ctx.quadraticCurveTo(h.x + h.width * 0.5, groundY - h.height, h.x + h.width, groundY);
-        ctx.closePath();
-        ctx.fill();
-      });
-
-      reeds.forEach(r => {
-        const tipX = r.x + Math.sin(r.sway) * 5;
-        ctx.strokeStyle = '#15803d';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(r.x, groundY + 4);
-        ctx.lineTo(tipX, groundY - r.h);
-        ctx.stroke();
-
-        ctx.fillStyle = '#78350f';
-        ctx.beginPath();
-        ctx.ellipse(tipX, groundY - r.h + 4, 3.5, 7, 0.1, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      ctx.fillStyle = '#22c55e';
-      ctx.fillRect(0, groundY, viewWidth, 16);
-      ctx.fillStyle = '#16a34a';
-      ctx.fillRect(0, groundY + 12, viewWidth, 6);
-
-      const waterGrad = ctx.createLinearGradient(0, groundY + 16, 0, viewHeight);
-      waterGrad.addColorStop(0, '#0ea5e9');
-      waterGrad.addColorStop(1, '#0369a1');
-      ctx.fillStyle = waterGrad;
-      ctx.fillRect(0, groundY + 16, viewWidth, viewHeight - (groundY + 16));
-
-      ctx.strokeStyle = 'rgba(224, 242, 254, 0.45)';
-      ctx.lineWidth = 2.5;
-      const rippleOffset = (distanceTraveled * 0.6) % 120;
-      for (let rx = -rippleOffset; rx < viewWidth; rx += 120) {
-        ctx.beginPath();
-        ctx.moveTo(rx + 15, groundY + 32);
-        ctx.lineTo(rx + 65, groundY + 32);
-        ctx.moveTo(rx + 45, groundY + 50);
-        ctx.lineTo(rx + 95, groundY + 50);
-        ctx.stroke();
-      }
-    }
-
-    function drawCollectibles() {
-      collectibles.forEach(item => {
-        const y = item.y + Math.sin(item.bobPhase) * 5;
-        ctx.save();
-        ctx.translate(item.x, y);
-
-        if (item.type === 'feather') {
-          ctx.rotate(Math.sin(item.bobPhase * 0.7) * 0.25 - 0.3);
-          ctx.fillStyle = '#facc15';
-          ctx.strokeStyle = '#a16207';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 17, 7, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.moveTo(-20, 0);
-          ctx.lineTo(15, 0);
-          ctx.strokeStyle = '#fef9c3';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        } else {
-          ctx.fillStyle = '#fde047';
-          ctx.strokeStyle = '#ca8a04';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 9, 12, 0.2, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(-2, -3, 2.2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-      });
-    }
-
-    function drawObstacles() {
-      obstacles.forEach(obs => {
-        ctx.save();
-        if (obs.kind === 'stump') {
-          ctx.fillStyle = '#92400e';
-          ctx.strokeStyle = '#451a03';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.roundRect(obs.x, obs.y, obs.width, obs.height, [8, 8, 2, 2]);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#4ade80';
-          ctx.beginPath();
-          ctx.roundRect(obs.x - 2, obs.y, obs.width + 4, 11, 6);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = '#15803d';
-          ctx.strokeStyle = '#052e16';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.moveTo(obs.x, obs.y + obs.height);
-          ctx.lineTo(obs.x + 10, obs.y + 6);
-          ctx.lineTo(obs.x + 23, obs.y + obs.height - 8);
-          ctx.lineTo(obs.x + 35, obs.y + 2);
-          ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-        }
-        ctx.restore();
-      });
-    }
-
-    function drawPlayer() {
-      if (player.invulnTimer > 0 && Math.floor(player.invulnTimer * 16) % 2 === 0) {
-        return;
-      }
-
-      const effectiveH = player.isDucking ? player.height * 0.62 : player.height;
-      const cx = player.x + player.width / 2;
-      const cy = player.y + effectiveH / 2;
-
-      ctx.save();
-      ctx.translate(cx, cy);
-
-      // Hoot Sonic Blast Aura
-      if (player.heroId === 'hoot' && player.specialActive > 0) {
-        const progress = 1 - player.specialActive / 0.55;
-        ctx.strokeStyle = `rgba(217, 70, 239, ${1 - progress})`;
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.arc(0, 0, 35 + progress * 195, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      // Rosie Starry Gaze Aura
-      if (player.heroId === 'rosie' && player.specialActive > 0) {
-        const progress = 1 - player.specialActive / 0.65;
-        ctx.strokeStyle = `rgba(244, 63, 94, ${1 - progress})`;
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.arc(0, 0, 30 + progress * 210, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      const sx = player.squashX * (player.isDucking ? 1.18 : 1);
-      const sy = player.squashY * (player.isDucking ? 0.68 : 1);
-      ctx.scale(sx, sy);
-
-      const runBob = player.isGrounded ? Math.sin(player.animTime * 1.4) * 2.5 : 0;
-      const wingFlap = !player.isGrounded ? Math.sin(player.animTime * 2.5) * 16 : Math.sin(player.animTime) * 4;
-
-      if (player.heroId === 'peep') {
-        const footSwing = player.isGrounded ? Math.sin(player.animTime * 1.5) * 6 : 3;
-        ctx.strokeStyle = '#ea580c';
-        ctx.lineWidth = 3.5;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-6, 18);
-        ctx.lineTo(-6 + footSwing, 25);
-        ctx.moveTo(6, 18);
-        ctx.lineTo(6 - footSwing, 25);
-        ctx.stroke();
-
-        ctx.fillStyle = '#fde047';
-        ctx.strokeStyle = '#ca8a04';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(0, runBob, 23, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(-3, -22 + runBob);
-        ctx.quadraticCurveTo(0, -32 + runBob, 4, -22 + runBob);
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(-4, 3 + runBob);
-        ctx.rotate((wingFlap * Math.PI) / 180);
-        ctx.fillStyle = '#facc15';
-        ctx.beginPath();
-        ctx.ellipse(-4, 0, 10, 6.5, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.arc(10, -5 + runBob, 3.6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(11.3, -6.3 + runBob, 1.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = 'rgba(251, 113, 133, 0.65)';
-        ctx.beginPath();
-        ctx.arc(7, 2 + runBob, 3.4, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#f97316';
-        ctx.strokeStyle = '#c2410c';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(21, -3 + runBob);
-        ctx.lineTo(32, 1 + runBob);
-        ctx.lineTo(21, 6 + runBob);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-      } else if (player.heroId === 'quack') {
-        // --- QUACK: Upright Vertical Oval Purple Duck (Smooth back, no tail) ---
-        const footSwing = player.isGrounded ? Math.sin(player.animTime * 1.6) * 7 : 4;
-        ctx.strokeStyle = '#ea580c';
-        ctx.lineWidth = 3.5;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-6, 22);
-        ctx.lineTo(-6 + footSwing, 29);
-        ctx.moveTo(7, 22);
-        ctx.lineTo(7 - footSwing, 29);
-        ctx.stroke();
-
-        // Upright Vertical Oval Body (rx = 19, ry = 26)
-        ctx.fillStyle = '#a855f7';
-        ctx.strokeStyle = '#6b21a8';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.ellipse(0, runBob, 19, 26, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Head Tuft
-        ctx.beginPath();
-        ctx.moveTo(-4, -25 + runBob);
-        ctx.quadraticCurveTo(0, -35 + runBob, 5, -24 + runBob);
-        ctx.stroke();
-
-        // Animated Wing (extends when gliding!)
-        ctx.save();
-        ctx.translate(-3, 2 + runBob);
-        ctx.rotate(player.isGliding ? -0.55 : (wingFlap * Math.PI) / 180);
-        ctx.fillStyle = '#c084fc';
-        ctx.beginPath();
-        ctx.ellipse(-4, 2, player.isGliding ? 16 : 8, player.isGliding ? 7 : 12, 0.15, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        // Eye
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.arc(9, -11 + runBob, 3.6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(10.3, -12.3 + runBob, 1.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Duck Bill
-        ctx.fillStyle = '#fb923c';
-        ctx.strokeStyle = '#c2410c';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.moveTo(17, -8 + runBob);
-        ctx.quadraticCurveTo(31, -9 + runBob, 31, -4 + runBob);
-        ctx.quadraticCurveTo(31, 1 + runBob, 17, 0 + runBob);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-      } else if (player.heroId === 'hoot') {
-        ctx.fillStyle = '#7e22ce';
-        ctx.strokeStyle = '#4c1d95';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(-16, -18 + runBob);
-        ctx.lineTo(-22, -31 + runBob);
-        ctx.lineTo(-8, -23 + runBob);
-        ctx.moveTo(16, -18 + runBob);
-        ctx.lineTo(22, -31 + runBob);
-        ctx.lineTo(8, -23 + runBob);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.ellipse(0, runBob, 25, 27, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#ddd6fe';
-        ctx.beginPath();
-        ctx.ellipse(2, 6 + runBob, 15, 16, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.save();
-        ctx.translate(-10, 2 + runBob);
-        ctx.rotate((wingFlap * 1.2 * Math.PI) / 180);
-        ctx.fillStyle = '#6b21a8';
-        ctx.beginPath();
-        ctx.ellipse(-6, 4, 12, 18, 0.35, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.fillStyle = '#fde047';
-        ctx.strokeStyle = '#4c1d95';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.arc(3, -8 + runBob, 7.5, 0, Math.PI * 2);
-        ctx.arc(16, -8 + runBob, 7.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.arc(4, -8 + runBob, 3.5, 0, Math.PI * 2);
-        ctx.arc(17, -8 + runBob, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(5, -9.5 + runBob, 1.3, 0, Math.PI * 2);
-        ctx.arc(18, -9.5 + runBob, 1.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#f59e0b';
-        ctx.strokeStyle = '#b45309';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(7, -3 + runBob);
-        ctx.lineTo(14, -3 + runBob);
-        ctx.lineTo(10.5, 5 + runBob);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-      } else if (player.heroId === 'rosie') {
-        // --- ROSIE: Female Duck with Big Red Starry Eyes & Rosy Cheeks (No bow) ---
-        const footSwing = player.isGrounded ? Math.sin(player.animTime * 1.6) * 7 : 4;
-        ctx.strokeStyle = '#e11d48';
-        ctx.lineWidth = 3.5;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-7, 19);
-        ctx.lineTo(-7 + footSwing, 26);
-        ctx.moveTo(7, 19);
-        ctx.lineTo(7 - footSwing, 26);
-        ctx.stroke();
-
-        // Body
-        ctx.fillStyle = '#fff1f2';
-        ctx.strokeStyle = '#e11d48';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.ellipse(0, runBob, 23, 22, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Wing
-        ctx.save();
-        ctx.translate(-5, 3 + runBob);
-        ctx.rotate((wingFlap * Math.PI) / 180);
-        ctx.fillStyle = '#fecdd3';
-        ctx.beginPath();
-        ctx.ellipse(-4, 0, 10, 6.5, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        // Big Red Starry Eye
-        const eyeX = 10;
-        const eyeY = -7 + runBob;
-        const eyeR = player.specialActive > 0 ? 11 : 9;
-        ctx.fillStyle = '#ffe4e6';
-        ctx.strokeStyle = '#e11d48';
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.arc(eyeX, eyeY, eyeR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        drawStar(eyeX, eyeY, 5, eyeR * 0.78, eyeR * 0.36, '#ef4444', '#991b1b');
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(eyeX + 2.5, eyeY - 2.5, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Soft Rosy Cheek
-        ctx.fillStyle = 'rgba(251, 113, 133, 0.72)';
-        ctx.beginPath();
-        ctx.ellipse(5, 3 + runBob, 5.5, 3.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bill
-        ctx.fillStyle = '#fb923c';
-        ctx.strokeStyle = '#c2410c';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.moveTo(20, -2 + runBob);
-        ctx.quadraticCurveTo(33, -3 + runBob, 33, 2 + runBob);
-        ctx.quadraticCurveTo(33, 7 + runBob, 20, 6 + runBob);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-      }
-
-      ctx.restore();
-    }
-
-    function drawEnemies() {
-      enemies.forEach(en => {
-        ctx.save();
-        ctx.translate(en.x + en.width / 2, en.y + en.height / 2);
-        if (en.stunned) {
-          ctx.rotate(en.wingPhase * 0.3);
-        } else if (en.scared) {
-          ctx.rotate(-0.35);
-        }
-
-        ctx.fillStyle = '#78350f';
-        ctx.strokeStyle = '#451a03';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(16, 0);
-        ctx.lineTo(31, -8);
-        ctx.lineTo(29, 5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#92400e';
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 22, 16, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#f97316';
-        ctx.beginPath();
-        ctx.ellipse(-6, 4, 14, 11, 0.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        const wingY = Math.sin(en.wingPhase) * 11;
-        ctx.fillStyle = '#78350f';
-        ctx.beginPath();
-        ctx.moveTo(-4, -3);
-        ctx.quadraticCurveTo(8, -18 + wingY, 18, -2);
-        ctx.quadraticCurveTo(6, 5, -4, -3);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.arc(-11, -5, 3.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(-12, -6, 1.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = '#451a03';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(-15, -10);
-        ctx.lineTo(-7, -7);
-        ctx.stroke();
-
-        ctx.fillStyle = '#facc15';
-        ctx.strokeStyle = '#a16207';
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(-21, -3);
-        ctx.lineTo(-32, 1);
-        ctx.lineTo(-21, 5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        if (en.scared) {
-          drawStar(-4, -22, 5, 9, 4, '#f43f5e', '#ffffff');
-          drawStar(12, -18, 5, 7, 3, '#fde047', '#f43f5e');
-        }
-
-        ctx.restore();
-      });
-    }
-
-    function drawParticlesAndText() {
-      particles.forEach(p => {
-        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalAlpha = 1;
-
-      floatingTexts.forEach(ft => {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, Math.min(1, ft.life * 1.4));
-        ctx.font = '800 16px Fredoka, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 4;
-        ctx.strokeText(ft.text, ft.x, ft.y);
-        ctx.fillStyle = ft.color;
-        ctx.fillText(ft.text, ft.x, ft.y);
-        ctx.restore();
-      });
-    }
-
-    function render() {
-      ctx.save();
-      if (screenShake > 0) {
-        const dx = (Math.random() - 0.5) * screenShake;
-        const dy = (Math.random() - 0.5) * screenShake;
-        ctx.translate(dx, dy);
-      }
-
-      drawBackground();
-      drawCollectibles();
-      drawObstacles();
-      drawPlayer();
-      drawEnemies();
-      drawParticlesAndText();
-
-      ctx.restore();
-    }
-
-    // =========================================================================
-    // 10. UI RENDERING & STATE TRANSITIONS
-    // =========================================================================
-    function updateHeaderStats() {
+    function updateHeaderBadges() {
       document.getElementById('header-max-level').textContent = saveData.highestLevel;
     }
 
-    function updateHUD() {
-      const hero = HEROES[player.heroId];
-      document.getElementById('hud-hero-name').textContent = hero.name;
-      document.getElementById('hud-hero-avatar').innerHTML = hero.svg;
-
-      let heartsStr = '';
-      for (let i = 0; i < player.maxHearts; i++) {
-        heartsStr += i < player.hearts ? '❤️' : '🖤';
-      }
-      document.getElementById('hud-hearts').textContent = heartsStr;
+    function updateHud() {
+      if (!player) return;
+      const spec = HEROES[player.id];
+      document.getElementById('hud-hero-name').textContent = spec.name;
+      document.getElementById('hud-hero-avatar').innerHTML = spec.svg;
+      document.getElementById('hud-hearts').textContent =
+        '❤️'.repeat(Math.max(0, player.hearts)) + '🖤'.repeat(Math.max(0, player.maxHearts - player.hearts));
 
       document.getElementById('hud-level').textContent = level;
-      const pct = Math.min(100, Math.floor((xp / xpToNext) * 100));
+      document.getElementById('hud-next-unlock').textContent = getNextUnlockHint(level);
+      const pct = Math.max(0, Math.min(100, (xp / xpToNext) * 100));
       document.getElementById('hud-xp-bar').style.width = `${pct}%`;
-
-      const nextEl = document.getElementById('hud-next-unlock');
-      if (!saveData.unlockedHeroes.includes('quack')) {
-        nextEl.textContent = `Quack unlocks at Lv.3`;
-      } else if (!saveData.unlockedHeroes.includes('hoot')) {
-        nextEl.textContent = `Hoot unlocks at Lv.10`;
-      } else if (!saveData.unlockedHeroes.includes('rosie')) {
-        nextEl.textContent = `Rosie unlocks at Lv.13`;
-      } else {
-        nextEl.textContent = `All 4 Birds Unlocked! ★`;
-      }
-
       document.getElementById('hud-score').textContent = Math.floor(score);
 
-      const specialHud = document.getElementById('hud-special-power');
-      if (player.heroId === 'hoot' || player.heroId === 'rosie') {
-        specialHud.classList.remove('hidden');
-        const maxCd = player.heroId === 'hoot' ? 3.2 : 2.8;
+      const specialWrap = document.getElementById('hud-special-power');
+      if (player.id === 'hoot' || player.id === 'rosie') {
+        specialWrap.classList.remove('hidden');
         document.getElementById('hud-special-label').textContent =
-          player.heroId === 'hoot' ? '🦉 Owl Sonic Blast:' : '✨ Red Starry Gaze:';
-        const readyPct = Math.round(((maxCd - player.specialCooldown) / maxCd) * 100);
-        document.getElementById('hud-special-bar').style.width = `${readyPct}%`;
+          player.id === 'hoot' ? '🦉 Sonic Hoot:' : '✨ Red Star Gaze:';
+        document.getElementById('hud-special-bar').style.width = `${Math.round(player.specialCharge)}%`;
       } else {
-        specialHud.classList.add('hidden');
+        specialWrap.classList.add('hidden');
       }
     }
 
     function renderStartHeroCards() {
-      const container = document.getElementById('start-hero-cards');
-      container.innerHTML = '';
+      const grid = document.getElementById('start-hero-cards');
+      grid.innerHTML = '';
 
       Object.values(HEROES).forEach(hero => {
-        const isUnlocked = saveData.unlockedHeroes.includes(hero.id);
-        const isSelected = saveData.selectedHero === hero.id;
+        const unlocked = saveData.unlockedHeroes.includes(hero.id);
+        const selected = saveData.selectedHero === hero.id && unlocked;
 
         const card = document.createElement('button');
         card.type = 'button';
-        card.disabled = !isUnlocked;
-        card.className = `p-2.5 rounded-2xl border-3 text-left transition flex flex-col justify-between ${
-          isSelected
-            ? 'bg-amber-50 border-amber-500 ring-4 ring-amber-300/60 shadow-md'
-            : isUnlocked
-              ? 'bg-white border-slate-200 hover:border-sky-400 hover:bg-sky-50/50'
+        card.className = `rounded-2xl p-3 border-2 text-left transition flex flex-col justify-between ${
+          selected
+            ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-300 shadow-md'
+            : unlocked
+              ? 'bg-white border-sky-200 hover:border-sky-400 shadow-sm'
               : 'bg-slate-100 border-slate-200 opacity-75 cursor-not-allowed'
         }`;
 
         card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between gap-1.5 mb-1.5">
-              <div class="w-11 h-11 rounded-2xl bg-sky-100/80 p-1 border border-sky-200 shrink-0">
-                ${hero.svg}
-              </div>
-              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                isUnlocked ? hero.badgeColor : 'bg-slate-300 text-slate-700'
-              }">
-                ${isUnlocked ? (isSelected ? '✓ SELECTED' : 'UNLOCKED') : `🔒 LV.${hero.unlockLevel}`}
-              </span>
+          <div class="flex items-center gap-2.5 mb-1.5">
+            <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 p-1 shrink-0 flex items-center justify-center">
+              ${hero.svg}
             </div>
-            <div class="font-display font-bold text-sm sm:text-base text-slate-900 leading-tight">${hero.name}</div>
-            <div class="text-[10px] font-bold text-slate-500 mb-1">${hero.title}</div>
+            <div class="min-w-0">
+              <div class="font-display font-bold text-slate-900 text-base leading-tight flex items-center gap-1">
+                <span>${hero.name}</span>
+                ${selected ? '<span class="text-[10px] bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded-full">READY</span>' : ''}
+              </div>
+              <div class="text-[11px] font-extrabold ${unlocked ? 'text-emerald-700' : 'text-rose-600'}">
+                ${unlocked ? `Unlocked • ${hero.maxHearts} ❤️` : `🔒 Unlocks at Lv.${hero.unlockLevel}`}
+              </div>
+            </div>
           </div>
-          <div class="text-[10px] font-extrabold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-100 leading-snug">
-            ⚡ ${hero.abilityName}
-          </div>
+          <p class="text-[11px] text-slate-600 font-semibold leading-snug">${hero.abilityName}</p>
         `;
 
-        if (isUnlocked) {
+        if (unlocked) {
           card.addEventListener('click', () => {
+            sfx.playTone(520, 680, 0.08, 'sine', 0.12);
             saveData.selectedHero = hero.id;
-            persistSaveData();
-            applyHeroStats(hero.id, true);
-            sfx.playJump(hero.id, 1);
+            persistSave();
             renderStartHeroCards();
           });
         }
 
-        container.appendChild(card);
+        grid.appendChild(card);
       });
     }
 
-    function renderPauseHeroSwitcher() {
-      const container = document.getElementById('pause-hero-switcher');
-      container.innerHTML = '';
+    function renderPauseSwitcher() {
+      const wrap = document.getElementById('pause-hero-switcher');
+      wrap.innerHTML = '';
 
       Object.values(HEROES).forEach(hero => {
-        const isUnlocked = saveData.unlockedHeroes.includes(hero.id);
-        const isCurrent = player.heroId === hero.id;
+        const unlocked = saveData.unlockedHeroes.includes(hero.id);
+        const active = player && player.id === hero.id;
 
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.disabled = !isUnlocked;
+        btn.disabled = !unlocked;
         btn.className = `p-2 rounded-2xl border-2 flex flex-col items-center text-center transition ${
-          isCurrent
-            ? 'bg-amber-100 border-amber-500 font-extrabold'
-            : isUnlocked
-              ? 'bg-slate-50 border-slate-200 hover:border-sky-400'
-              : 'bg-slate-100 border-slate-200 opacity-50'
+          active
+            ? 'bg-purple-100 border-purple-500 ring-2 ring-purple-300'
+            : unlocked
+              ? 'bg-slate-50 border-slate-200 hover:border-purple-400'
+              : 'bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed'
         }`;
-
         btn.innerHTML = `
           <div class="w-10 h-10 mb-1">${hero.svg}</div>
-          <div class="text-xs font-bold text-slate-900">${hero.name}</div>
-          <div class="text-[10px] font-bold text-slate-500">${isUnlocked ? (isCurrent ? 'Active' : 'Switch') : `Lv.${hero.unlockLevel}`}</div>
+          <div class="font-display font-bold text-xs text-slate-900">${hero.name}</div>
+          <div class="text-[10px] font-bold ${unlocked ? 'text-purple-700' : 'text-slate-500'}">
+            ${unlocked ? (active ? 'Active' : 'Select') : `Lv.${hero.unlockLevel}`}
+          </div>
         `;
 
-        if (isUnlocked && !isCurrent) {
+        if (unlocked) {
           btn.addEventListener('click', () => {
-            switchActiveHeroMidRun(hero.id);
-            renderPauseHeroSwitcher();
+            switchActiveHero(hero.id, true);
+            renderPauseSwitcher();
           });
         }
-        container.appendChild(btn);
+
+        wrap.appendChild(btn);
       });
-    }
-
-    function switchActiveHeroMidRun(heroId) {
-      if (!saveData.unlockedHeroes.includes(heroId)) return;
-      saveData.selectedHero = heroId;
-      persistSaveData();
-      applyHeroStats(heroId, false);
-      sfx.playJump(heroId, 2);
-      spawnCelebrationParticles(player.x + player.width / 2, player.y + player.height / 2, '#c084fc', 18);
-      spawnFloatingText(player.x, player.y - 16, `GO ${HEROES[heroId].name.toUpperCase()}!`, '#fde047');
-      updateHUD();
-    }
-
-    function cycleUnlockedHero() {
-      const unlocked = saveData.unlockedHeroes;
-      if (unlocked.length <= 1) {
-        spawnFloatingText(player.x, player.y - 14, 'Reach Lv.3 for Quack!', '#fde047');
-        return;
-      }
-      const idx = unlocked.indexOf(player.heroId);
-      const nextHero = unlocked[(idx + 1) % unlocked.length];
-      switchActiveHeroMidRun(nextHero);
     }
 
     function renderRosterModal() {
@@ -2218,88 +957,295 @@
       list.innerHTML = '';
 
       Object.values(HEROES).forEach(hero => {
-        const isUnlocked = saveData.unlockedHeroes.includes(hero.id);
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl p-3.5 border-2 border-slate-200 shadow-sm flex gap-3 items-start';
-        card.innerHTML = `
-          <div class="w-16 h-16 rounded-2xl bg-sky-50 border border-sky-200 p-1.5 shrink-0">
+        const unlocked = saveData.unlockedHeroes.includes(hero.id);
+        const el = document.createElement('div');
+        el.className = `bg-white rounded-2xl p-3 border-2 ${unlocked ? 'border-purple-200' : 'border-slate-200 opacity-80'} flex gap-3 items-start shadow-sm`;
+        el.innerHTML = `
+          <div class="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 p-1 shrink-0">
             ${hero.svg}
           </div>
-          <div class="flex-1">
+          <div class="min-w-0 flex-1">
             <div class="flex items-center justify-between gap-1">
-              <h3 class="font-display font-bold text-lg text-slate-900">${hero.name}</h3>
-              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full ${isUnlocked ? 'bg-lime-100 text-lime-800' : 'bg-amber-100 text-amber-800'}">
-                ${isUnlocked ? '✓ Unlocked' : `Unlocks Lv.${hero.unlockLevel}`}
+              <h3 class="font-display font-bold text-base text-slate-900">${hero.name}</h3>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${unlocked ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}">
+                ${unlocked ? 'UNLOCKED' : `LV. ${hero.unlockLevel}`}
               </span>
             </div>
-            <div class="text-xs font-bold text-purple-700 mb-1">${hero.title} • ${hero.abilityName}</div>
-            <p class="text-xs text-slate-600 leading-relaxed">${hero.description}</p>
+            <div class="text-[11px] font-bold text-purple-700 mb-1">${hero.abilityName}</div>
+            <p class="text-xs text-slate-600 font-semibold leading-snug">${hero.description}</p>
           </div>
         `;
-        list.appendChild(card);
+        list.appendChild(el);
       });
 
       const enemyCard = document.createElement('div');
-      enemyCard.className = 'bg-rose-50/90 rounded-2xl p-3.5 border-2 border-rose-300 shadow-sm flex gap-3 items-start sm:col-span-2';
+      enemyCard.className = 'sm:col-span-2 bg-rose-50/90 rounded-2xl p-3 border-2 border-rose-200 flex gap-3 items-start shadow-sm';
       enemyCard.innerHTML = `
-        <div class="w-16 h-16 rounded-2xl bg-white border border-rose-200 p-1.5 shrink-0">
+        <div class="w-14 h-14 rounded-2xl bg-white border border-rose-200 p-1 shrink-0">
           ${ENEMY_CHIRP.svg}
         </div>
-        <div class="flex-1">
+        <div class="min-w-0 flex-1">
           <div class="flex items-center justify-between gap-1">
-            <h3 class="font-display font-bold text-lg text-rose-900">${ENEMY_CHIRP.name} (Robin)</h3>
-            <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900">
-              ⚠️ ENEMY
-            </span>
+            <h3 class="font-display font-bold text-base text-rose-950">${ENEMY_CHIRP.name} (Enemy Robin)</h3>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900">HAZARD</span>
           </div>
-          <div class="text-xs font-bold text-rose-700 mb-1">${ENEMY_CHIRP.title}</div>
-          <p class="text-xs text-slate-700 leading-relaxed">${ENEMY_CHIRP.description}</p>
+          <div class="text-[11px] font-bold text-rose-700 mb-1">${ENEMY_CHIRP.title}</div>
+          <p class="text-xs text-rose-900/85 font-semibold leading-snug">${ENEMY_CHIRP.description}</p>
         </div>
       `;
       list.appendChild(enemyCard);
     }
 
-    function startNewGame() {
-      sfx.init();
-      score = 0;
-      level = 1;
-      xp = 0;
-      xpToNext = getXpRequiredForLevel(1);
-      worldSpeed = 335;
-      distanceTraveled = 0;
-      enemies = [];
-      collectibles = [];
-      obstacles = [];
-      particles = [];
-      floatingTexts = [];
+    function switchActiveHero(newId, keepHearts = true) {
+      if (!HEROES[newId] || !saveData.unlockedHeroes.includes(newId)) return;
+      const prevHearts = player ? player.hearts : HEROES[newId].maxHearts;
+      const prevX = player ? player.x : Math.min(165, Math.max(85, viewW * 0.17));
+      const prevY = player ? player.y : groundY;
+      const prevVy = player ? player.vy : 0;
+      const prevOnGround = player ? player.onGround : true;
 
-      enemySpawnTimer = 1.4;
-      collectibleSpawnTimer = 0.7;
-      obstacleSpawnTimer = 2.2;
+      saveData.selectedHero = newId;
+      persistSave();
 
-      applyHeroStats(saveData.selectedHero, true);
-      player.x = Math.min(115, viewWidth * 0.16);
-      player.y = groundY - player.height;
-      player.vy = 0;
-      player.jumpsUsed = 0;
-      player.isGrounded = true;
-      player.isDucking = false;
-      player.invulnTimer = 0;
-      player.specialCooldown = 0;
-      player.specialActive = 0;
+      player = createPlayer(newId);
+      player.x = prevX;
+      player.y = prevY;
+      player.vy = prevVy;
+      player.onGround = prevOnGround;
+      player.hearts = keepHearts
+        ? Math.min(player.maxHearts, Math.max(1, prevHearts))
+        : player.maxHearts;
+      player.invulnTimer = 0.6;
+      player.squashX = 1.2;
+      player.squashY = 0.82;
 
-      gameState = 'PLAYING';
-      document.getElementById('screen-start').classList.add('hidden');
-      document.getElementById('screen-gameover').classList.add('hidden');
-      document.getElementById('screen-pause').classList.add('hidden');
-      document.getElementById('banner-toast').classList.add('hidden');
-      document.getElementById('hud-overlay').classList.remove('hidden');
-
-      updateHUD();
-      sfx.playJump(player.heroId, 1);
+      spawnFloatingText(player.x, player.y - 65, `${HEROES[newId].name}!`, '#fde047');
+      updateHud();
     }
 
-    function triggerGameOver() {
+    function triggerJump() {
+      if (gameState !== 'PLAYING' || !player) return;
+      const spec = HEROES[player.id];
+
+      if (player.jumpsUsed < spec.maxJumps) {
+        player.diving = false;
+        player.ducking = false;
+        player.vy = spec.jumpForce;
+        player.onGround = false;
+        player.jumpsUsed += 1;
+        player.squashX = 0.8;
+        player.squashY = 1.24;
+
+        sfx.playJump(player.id, player.jumpsUsed);
+        spawnParticles(player.x, player.y, '#fef08a', 8, 130);
+      }
+    }
+
+    function setDucking(active) {
+      if (!player) return;
+      if (active) {
+        if (!player.onGround && !player.diving) {
+          player.diving = true;
+          player.ducking = true;
+          player.vy = Math.max(player.vy + 520, 780);
+          player.squashX = 0.78;
+          player.squashY = 1.25;
+          sfx.playTone(420, 190, 0.12, 'triangle', 0.13);
+        } else if (player.onGround) {
+          player.ducking = true;
+        }
+      } else {
+        player.ducking = false;
+        player.diving = false;
+      }
+    }
+
+    function triggerGroundSmashEarthquake() {
+      if (!player) return;
+      const isQuack = player.id === 'quack';
+      const smashRadius = isQuack ? 250 : 165;
+      const quakeDuration = isQuack ? 1.15 : 0.65;
+
+      player.diving = false;
+      player.ducking = false;
+      player.onGround = true;
+      player.y = groundY;
+      player.vy = 0;
+      player.jumpsUsed = 0;
+      player.squashX = isQuack ? 1.42 : 1.28;
+      player.squashY = isQuack ? 0.64 : 0.75;
+
+      earthquakeTimer = Math.max(earthquakeTimer, quakeDuration);
+      screenShake = Math.max(screenShake, isQuack ? 16 : 9);
+
+      sfx.playTone(150, 48, 0.34, 'sawtooth', isQuack ? 0.22 : 0.14);
+      sfx.playTone(95, 38, 0.42, 'triangle', isQuack ? 0.2 : 0.12, 0.05);
+
+      shockwaves.push({
+        x: player.x + 12,
+        y: groundY - 4,
+        radius: 16,
+        maxRadius: smashRadius,
+        color: isQuack ? '#c084fc' : '#fde047',
+        alpha: 0.95
+      });
+
+      spawnParticles(player.x + 10, groundY, isQuack ? '#a855f7' : '#86efac', isQuack ? 22 : 12, 240);
+      spawnParticles(player.x + 10, groundY, '#fef08a', isQuack ? 12 : 6, 190);
+      spawnFloatingText(
+        player.x + 18,
+        groundY - 58,
+        isQuack ? 'QUACK EARTHQUAKE!' : 'GROUND SMASH!',
+        isQuack ? '#e9d5ff' : '#fef08a'
+      );
+
+      obstacles.forEach(obs => {
+        if (obs.kind === 'chirp' && !obs.scared) {
+          const dist = Math.hypot(obs.x - player.x, obs.y - groundY);
+          if (dist <= smashRadius + obs.r) {
+            obs.scared = true;
+            obs.vx = 460;
+            obs.vy = -260;
+            score += 35;
+            addXp(25);
+            sfx.playStunEnemy();
+            spawnFloatingText(obs.x, obs.y - 24, 'QUAKE +35', '#facc15');
+          }
+        }
+      });
+    }
+
+    function triggerSpecialAbility() {
+      if (gameState !== 'PLAYING' || !player) return;
+
+      if (player.id === 'hoot') {
+        if (player.specialCharge < 100) return;
+        player.specialCharge = 0;
+        screenShake = 11;
+        sfx.playHootBlast();
+
+        shockwaves.push({
+          x: player.x + 24,
+          y: player.y - 24,
+          radius: 14,
+          maxRadius: 310,
+          color: '#e879f9',
+          alpha: 0.95
+        });
+
+        spawnParticles(player.x + 25, player.y - 24, '#f0abfc', 18, 220);
+        spawnFloatingText(player.x + 20, player.y - 65, 'SONIC HOOT!', '#f5d0fe');
+
+        obstacles.forEach(obs => {
+          if (obs.kind === 'chirp' && obs.x > player.x - 40 && obs.x < player.x + 420) {
+            obs.scared = true;
+            obs.vx = 520;
+            obs.vy = -240;
+            score += 40;
+            addXp(25);
+          }
+        });
+      } else if (player.id === 'rosie') {
+        if (player.specialCharge < 100) return;
+        player.specialCharge = 0;
+        player.starryTimer = 2.4;
+        screenShake = 7;
+        sfx.playRosieStarryGaze();
+
+        shockwaves.push({
+          x: player.x + 18,
+          y: player.y - 28,
+          radius: 12,
+          maxRadius: 270,
+          color: '#fb7185',
+          alpha: 0.9
+        });
+
+        spawnParticles(player.x + 20, player.y - 28, '#fda4af', 18, 210);
+        spawnFloatingText(player.x + 20, player.y - 65, 'RED STAR GAZE!', '#fecdd3');
+
+        obstacles.forEach(obs => {
+          if (obs.kind === 'chirp' && !obs.scared) {
+            obs.scared = true;
+            obs.vx = 480;
+            obs.vy = -290;
+            score += 45;
+            addXp(30);
+          }
+        });
+      } else {
+        triggerJump();
+      }
+      updateHud();
+    }
+
+    function addXp(amount) {
+      xp += amount;
+      while (xp >= xpToNext) {
+        xp -= xpToNext;
+        level += 1;
+        xpToNext = getLevelXpRequirement(level);
+
+        const prevUnlocked = new Set(saveData.unlockedHeroes);
+        if (level > saveData.highestLevel) {
+          saveData.highestLevel = level;
+        }
+        syncUnlocksWithLevel(level);
+        persistSave();
+
+        let newlyUnlocked = null;
+        Object.keys(HEROES).forEach(id => {
+          if (!prevUnlocked.has(id) && saveData.unlockedHeroes.includes(id)) {
+            newlyUnlocked = id;
+          }
+        });
+
+        if (newlyUnlocked) {
+          const h = HEROES[newlyUnlocked];
+          sfx.playLevelUp(true);
+          showBanner(
+            'NEW HERO UNLOCKED!',
+            `Level ${level} • Meet ${h.name}!`,
+            `${h.title} — ${h.abilityName}`,
+            newlyUnlocked
+          );
+        } else {
+          sfx.playLevelUp(false);
+          showBanner(
+            'LEVEL UP!',
+            `Reached Level ${level}!`,
+            'Pace quickens — stay sharp against Chirp!',
+            null
+          );
+        }
+      }
+    }
+
+    function damagePlayer() {
+      if (!player || player.invulnTimer > 0) return;
+
+      if (player.diving) {
+        triggerGroundSmashEarthquake();
+        return;
+      }
+
+      player.hearts -= 1;
+      player.invulnTimer = 1.25;
+      player.squashX = 1.25;
+      player.squashY = 0.75;
+      screenShake = 12;
+
+      sfx.playHurt();
+      spawnParticles(player.x, player.y - 24, '#fb7185', 14, 180);
+      spawnFloatingText(player.x, player.y - 55, '-1 ❤️', '#fda4af');
+      updateHud();
+
+      if (player.hearts <= 0) {
+        handleGameOver();
+      }
+    }
+
+    function handleGameOver() {
       gameState = 'GAMEOVER';
       const finalScore = Math.floor(score);
       if (finalScore > saveData.highScore) {
@@ -2308,173 +1254,900 @@
       if (level > saveData.highestLevel) {
         saveData.highestLevel = level;
       }
-      persistSaveData();
-      updateHeaderStats();
-
-      document.getElementById('go-score').textContent = finalScore;
-      document.getElementById('go-best').textContent = saveData.highScore;
-      document.getElementById('go-level').textContent = level;
-
-      const hintEl = document.getElementById('go-unlock-hint');
-      if (!saveData.unlockedHeroes.includes('quack')) {
-        hintEl.textContent = `Tip: Reach Level 3 to unlock Quack (the Vertical Oval Purple Duck)!`;
-      } else if (!saveData.unlockedHeroes.includes('hoot')) {
-        hintEl.textContent = `Tip: Reach Level 10 to unlock Hoot (the Mighty Purple Owl)!`;
-      } else if (!saveData.unlockedHeroes.includes('rosie')) {
-        hintEl.textContent = `Tip: Reach Level 13 to unlock Rosie (the Starry-Eyed Female Duck)!`;
-      } else {
-        hintEl.textContent = `You've unlocked the entire flock: Peep, Quack, Hoot, and Rosie!`;
-      }
+      persistSave();
 
       document.getElementById('hud-overlay').classList.add('hidden');
       document.getElementById('screen-gameover').classList.remove('hidden');
+      document.getElementById('go-score').textContent = finalScore;
+      document.getElementById('go-best').textContent = saveData.highScore;
+      document.getElementById('go-level').textContent = level;
+      document.getElementById('go-unlock-hint').textContent = getNextUnlockHint(level);
     }
 
-    function togglePause() {
-      if (gameState === 'PLAYING') {
-        gameState = 'PAUSED';
-        renderPauseHeroSwitcher();
-        document.getElementById('screen-pause').classList.remove('hidden');
-      } else if (gameState === 'PAUSED') {
-        gameState = 'PLAYING';
-        document.getElementById('screen-pause').classList.add('hidden');
+    function startNewGame() {
+      sfx.init();
+      score = 0;
+      xp = 0;
+      xpToNext = getLevelXpRequirement(1);
+      level = 1;
+      worldTime = 0;
+      screenShake = 0;
+      earthquakeTimer = 0;
+      newlyUnlockedHeroId = null;
+
+      obstacles = [];
+      collectibles = [];
+      particles = [];
+      shockwaves = [];
+      floatingTexts = [];
+      obstacleTimer = 1.05;
+      collectibleTimer = 0.65;
+
+      if (!saveData.unlockedHeroes.includes(saveData.selectedHero)) {
+        saveData.selectedHero = 'peep';
+      }
+      player = createPlayer(saveData.selectedHero);
+
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('screen-pause').classList.add('hidden');
+      document.getElementById('screen-gameover').classList.add('hidden');
+      document.getElementById('banner-toast').classList.add('hidden');
+      document.getElementById('hud-overlay').classList.remove('hidden');
+
+      gameState = 'PLAYING';
+      updateHud();
+    }
+
+    function spawnObstacle() {
+      const currentSpeed = baseSpeed * (1 + (level - 1) * 0.065);
+      const roll = Math.random();
+
+      if (roll < 0.45) {
+        const laneRoll = Math.random();
+        let altitudeOffset = 38;
+        if (laneRoll < 0.34) {
+          altitudeOffset = 34;
+        } else if (laneRoll < 0.7) {
+          altitudeOffset = 82;
+        } else {
+          altitudeOffset = 128;
+        }
+
+        obstacles.push({
+          kind: 'chirp',
+          x: viewW + 40,
+          y: groundY - altitudeOffset,
+          baseY: groundY - altitudeOffset,
+          r: 21,
+          vx: -(currentSpeed * 1.12),
+          vy: 0,
+          wingPhase: Math.random() * Math.PI * 2,
+          swoopPhase: Math.random() * Math.PI * 2,
+          scared: false
+        });
+      } else {
+        obstacles.push({
+          kind: 'log',
+          x: viewW + 35,
+          y: groundY,
+          w: 36 + Math.random() * 14,
+          h: 34 + Math.random() * 14,
+          vx: -currentSpeed
+        });
       }
     }
 
-    // =========================================================================
-    // 11. EVENT LISTENERS (KEYBOARD, MOUSE, TOUCH, UI BUTTONS)
-    // =========================================================================
+    function spawnCollectible() {
+      const isFeather = Math.random() < 0.28;
+      const heightOffset = 35 + Math.random() * 115;
+      collectibles.push({
+        kind: isFeather ? 'feather' : 'seed',
+        x: viewW + 30,
+        y: groundY - heightOffset,
+        baseY: groundY - heightOffset,
+        r: isFeather ? 16 : 12,
+        phase: Math.random() * Math.PI * 2,
+        value: isFeather ? 30 : 15,
+        xpValue: isFeather ? 25 : 12
+      });
+    }
+
+    function spawnParticles(x, y, color, count, speedMax) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 35 + Math.random() * speedMax;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 60,
+          size: 3 + Math.random() * 5,
+          color,
+          life: 0.45 + Math.random() * 0.35,
+          maxLife: 0.8
+        });
+      }
+    }
+
+    function spawnFloatingText(x, y, text, color) {
+      floatingTexts.push({
+        x,
+        y,
+        text,
+        color,
+        life: 0.85,
+        maxLife: 0.85
+      });
+    }
+
+    function update(dt) {
+      worldTime += dt;
+
+      if (screenShake > 0) {
+        screenShake = Math.max(0, screenShake - dt * 36);
+      }
+      if (earthquakeTimer > 0) {
+        earthquakeTimer = Math.max(0, earthquakeTimer - dt);
+      }
+
+      clouds.forEach(c => {
+        const mult = gameState === 'PLAYING' ? 1 + (level - 1) * 0.05 : 0.4;
+        c.x -= c.speed * mult * dt;
+        if (c.x < -120) c.x = viewW + 90;
+      });
+
+      if (gameState !== 'PLAYING' || !player) return;
+
+      const spec = HEROES[player.id];
+      const worldScrollSpeed = baseSpeed * (1 + (level - 1) * 0.065) * spec.speedMult;
+
+      hills.forEach(h => {
+        h.x -= worldScrollSpeed * 0.25 * dt;
+        if (h.x + h.width < -40) {
+          h.x += hills.length * 255;
+        }
+      });
+
+      score += dt * 18 * (1 + (level - 1) * 0.08);
+      addXp(dt * 10);
+
+      if (player.id === 'hoot' || player.id === 'rosie') {
+        player.specialCharge = Math.min(100, player.specialCharge + dt * 16);
+      }
+      if (player.starryTimer > 0) {
+        player.starryTimer = Math.max(0, player.starryTimer - dt);
+      }
+      if (player.invulnTimer > 0) {
+        player.invulnTimer = Math.max(0, player.invulnTimer - dt);
+      }
+
+      let grav = spec.gravity;
+      if (player.diving) {
+        grav = spec.gravity * 2.4;
+      } else if (player.id === 'quack' && !player.onGround && player.vy > 0 && jumpHeld) {
+        grav = spec.gravity * 0.34;
+        player.vy = Math.min(player.vy, 130);
+      }
+
+      player.vy += grav * dt;
+      player.y += player.vy * dt;
+      player.animPhase += dt * 12;
+
+      player.squashX += (1 - player.squashX) * Math.min(1, dt * 14);
+      player.squashY += (1 - player.squashY) * Math.min(1, dt * 14);
+
+      if (player.y >= groundY) {
+        const wasDiving = player.diving;
+        player.y = groundY;
+        player.vy = 0;
+        player.jumpsUsed = 0;
+
+        if (!player.onGround) {
+          player.onGround = true;
+          if (wasDiving) {
+            triggerGroundSmashEarthquake();
+          } else {
+            player.squashX = 1.18;
+            player.squashY = 0.84;
+          }
+        }
+      }
+
+      obstacleTimer -= dt;
+      if (obstacleTimer <= 0) {
+        spawnObstacle();
+        const minGap = Math.max(0.72, 1.48 - (level - 1) * 0.05);
+        obstacleTimer = minGap + Math.random() * 0.65;
+      }
+
+      collectibleTimer -= dt;
+      if (collectibleTimer <= 0) {
+        spawnCollectible();
+        collectibleTimer = 0.75 + Math.random() * 0.7;
+      }
+
+      const pHalfW = player.ducking ? 22 : 17;
+      const pHeight = player.ducking ? 32 : 48;
+      const pTop = player.y - pHeight;
+      const pBottom = player.y;
+      const pLeft = player.x - pHalfW;
+      const pRight = player.x + pHalfW;
+
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        if (obs.kind === 'chirp') {
+          if (obs.scared) {
+            obs.x += obs.vx * dt;
+            obs.y += obs.vy * dt;
+            obs.vy += 420 * dt;
+          } else {
+            obs.x += obs.vx * dt;
+            obs.swoopPhase += dt * 3.6;
+            const swoopAmp = Math.min(34, 12 + level * 2);
+            obs.y = obs.baseY + Math.sin(obs.swoopPhase) * swoopAmp;
+          }
+          obs.wingPhase += dt * 18;
+
+          if (!obs.scared && player.id === 'rosie' && player.starryTimer > 0) {
+            const d = Math.hypot(obs.x - player.x, obs.y - (player.y - 24));
+            if (d < 220) {
+              obs.scared = true;
+              obs.vx = 460;
+              obs.vy = -260;
+              score += 35;
+              spawnFloatingText(obs.x, obs.y - 20, 'STARRIED!', '#fda4af');
+            }
+          }
+
+          if (!obs.scared) {
+            const closestX = Math.max(pLeft, Math.min(obs.x, pRight));
+            const closestY = Math.max(pTop, Math.min(obs.y, pBottom));
+            const dx = obs.x - closestX;
+            const dy = obs.y - closestY;
+            if (dx * dx + dy * dy < obs.r * obs.r) {
+              damagePlayer();
+            }
+          }
+        } else {
+          obs.x += obs.vx * dt;
+          const oLeft = obs.x - obs.w * 0.45;
+          const oRight = obs.x + obs.w * 0.45;
+          const oTop = obs.y - obs.h;
+
+          if (pRight > oLeft && pLeft < oRight && pBottom > oTop && pTop < obs.y) {
+            damagePlayer();
+          }
+        }
+
+        if (obs.x < -120 || obs.x > viewW + 260 || obs.y > viewH + 120) {
+          obstacles.splice(i, 1);
+        }
+      }
+
+      for (let i = collectibles.length - 1; i >= 0; i--) {
+        const item = collectibles[i];
+        item.x -= worldScrollSpeed * 0.95 * dt;
+        item.phase += dt * 4.5;
+        item.y = item.baseY + Math.sin(item.phase) * 8;
+
+        const cx = Math.max(pLeft, Math.min(item.x, pRight));
+        const cy = Math.max(pTop, Math.min(item.y, pBottom));
+        const dx = item.x - cx;
+        const dy = item.y - cy;
+
+        if (dx * dx + dy * dy <= (item.r + 10) * (item.r + 10)) {
+          score += item.value;
+          addXp(item.xpValue);
+          sfx.playCollect(item.kind === 'feather');
+          spawnParticles(
+            item.x,
+            item.y,
+            item.kind === 'feather' ? '#fde047' : '#fb923c',
+            8,
+            120
+          );
+          spawnFloatingText(
+            item.x,
+            item.y - 14,
+            `+${item.value}`,
+            item.kind === 'feather' ? '#fef08a' : '#fed7aa'
+          );
+          collectibles.splice(i, 1);
+          continue;
+        }
+
+        if (item.x < -60) {
+          collectibles.splice(i, 1);
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.vy += 480 * dt;
+        pt.life -= dt;
+        if (pt.life <= 0) particles.splice(i, 1);
+      }
+
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.radius += dt * 620;
+        sw.alpha -= dt * 1.9;
+        if (sw.radius >= sw.maxRadius || sw.alpha <= 0) {
+          shockwaves.splice(i, 1);
+        }
+      }
+
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y -= dt * 48;
+        ft.life -= dt;
+        if (ft.life <= 0) floatingTexts.splice(i, 1);
+      }
+
+      updateHud();
+    }
+
+    function drawHeroOnCanvas(p) {
+      ctx.save();
+      const quakeOffsetX = earthquakeTimer > 0 ? Math.sin(worldTime * 65) * 4 : 0;
+      ctx.translate(p.x + quakeOffsetX, p.y);
+
+      if (p.invulnTimer > 0 && Math.floor(p.invulnTimer * 16) % 2 === 0) {
+        ctx.globalAlpha = 0.45;
+      }
+
+      let sx = p.squashX;
+      let sy = p.squashY;
+      if (p.ducking && !p.diving) {
+        sx = 1.24;
+        sy = 0.72;
+      }
+      ctx.scale(sx, sy);
+
+      const bob = p.onGround && !p.ducking ? Math.sin(p.animPhase) * 2.5 : 0;
+
+      if (p.id === 'peep') {
+        ctx.fillStyle = '#fde047';
+        ctx.strokeStyle = '#ca8a04';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, -24 + bob, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-3, -45 + bob);
+        ctx.quadraticCurveTo(0, -54 + bob, 4, -45 + bob);
+        ctx.stroke();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(8, -29 + bob, 3.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f97316';
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(18, -26 + bob);
+        ctx.lineTo(29, -23 + bob);
+        ctx.lineTo(18, -19 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (p.id === 'quack') {
+        if (p.diving) {
+          ctx.rotate(0.26);
+        }
+        ctx.fillStyle = '#7c5ce6';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.ellipse(0, -25 + bob, 18, 23, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // White Sailor / Skipper Hat with turned-up band
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(-8, -46 + bob);
+        ctx.lineTo(-6, -53 + bob);
+        ctx.quadraticCurveTo(3, -56 + bob, 12, -53 + bob);
+        ctx.lineTo(14, -46 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.moveTo(-11, -48 + bob);
+        ctx.quadraticCurveTo(3, -43 + bob, 17, -48 + bob);
+        ctx.lineTo(15, -42 + bob);
+        ctx.quadraticCurveTo(3, -39 + bob, -9, -42 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Two big touching white cartoon eyes
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(1, -35 + bob, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(10.5, -34 + bob, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Pupils
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(2.5, -34.5 + bob, 2, 0, Math.PI * 2);
+        ctx.arc(12, -33.5 + bob, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Thick rounded black beak right under the eyes
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 5.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-7, -33 + bob);
+        ctx.lineTo(18, -26 + bob);
+        ctx.stroke();
+      } else if (p.id === 'hoot') {
+        ctx.fillStyle = '#7e22ce';
+        ctx.strokeStyle = '#4c1d95';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, -26 + bob, 21, 24, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-15, -45 + bob);
+        ctx.lineTo(-21, -56 + bob);
+        ctx.lineTo(-7, -49 + bob);
+        ctx.moveTo(15, -45 + bob);
+        ctx.lineTo(21, -56 + bob);
+        ctx.lineTo(7, -49 + bob);
+        ctx.fill();
+        ctx.stroke();
+
+        [-7, 7].forEach(ex => {
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(ex, -32 + bob, 6.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(ex + 1.5, -32 + bob, 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(-4, -27 + bob);
+        ctx.lineTo(4, -27 + bob);
+        ctx.lineTo(0, -20 + bob);
+        ctx.closePath();
+        ctx.fill();
+      } else if (p.id === 'rosie') {
+        ctx.fillStyle = '#fff1f2';
+        ctx.strokeStyle = '#e11d48';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, -24 + bob, 19, 21, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(251, 113, 133, 0.65)';
+        ctx.beginPath();
+        ctx.ellipse(4, -20 + bob, 5, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffe4e6';
+        ctx.strokeStyle = '#e11d48';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(8, -31 + bob, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        for (let s = 0; s < 10; s++) {
+          const rad = s % 2 === 0 ? 5.2 : 2.2;
+          const ang = (s * Math.PI) / 5 - Math.PI / 2;
+          const px = 8 + Math.cos(ang) * rad;
+          const py = -31 + bob + Math.sin(ang) * rad;
+          if (s === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#fb923c';
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(20, -25 + bob, 8.5, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = p.id === 'quack' ? '#0f172a' : '#ea580c';
+      ctx.lineWidth = 2.8;
+      ctx.lineCap = 'round';
+      const stepOffset = p.onGround ? Math.sin(p.animPhase) * 4 : 2;
+      ctx.beginPath();
+      ctx.moveTo(-7, -3);
+      ctx.lineTo(-7 + stepOffset, 2);
+      ctx.moveTo(7, -3);
+      ctx.lineTo(7 - stepOffset, 2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawChirpEnemy(obs) {
+      ctx.save();
+      ctx.translate(obs.x, obs.y);
+      if (obs.scared) {
+        ctx.rotate(-0.35);
+      }
+
+      ctx.fillStyle = '#92400e';
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 19, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.arc(-6, 3, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      const wingY = Math.sin(obs.wingPhase) * 8;
+      ctx.fillStyle = '#78350f';
+      ctx.beginPath();
+      ctx.ellipse(2, -4 + wingY * 0.4, 9, 5, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(-9, -4, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#facc15';
+      ctx.strokeStyle = '#a16207';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-17, -2);
+      ctx.lineTo(-27, 1);
+      ctx.lineTo(-17, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.save();
+
+      const activeShake = Math.max(screenShake, earthquakeTimer > 0 ? 11 : 0);
+      if (activeShake > 0) {
+        const sx = (Math.random() - 0.5) * activeShake * 1.4;
+        const sy = (Math.random() - 0.5) * activeShake * 1.4;
+        ctx.translate(sx, sy);
+      }
+
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+      skyGrad.addColorStop(0, '#38bdf8');
+      skyGrad.addColorStop(0.65, '#bae6fd');
+      skyGrad.addColorStop(1, '#dcfce7');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(-20, -20, viewW + 40, groundY + 30);
+
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(viewW - 95, 72, 34, 0, Math.PI * 2);
+      ctx.fill();
+
+      clouds.forEach(c => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 22 * c.scale, 0, Math.PI * 2);
+        ctx.arc(c.x + 18 * c.scale, c.y - 4 * c.scale, 26 * c.scale, 0, Math.PI * 2);
+        ctx.arc(c.x + 38 * c.scale, c.y + 2 * c.scale, 20 * c.scale, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      hills.forEach(h => {
+        ctx.fillStyle = h.color;
+        ctx.beginPath();
+        ctx.ellipse(h.x + h.width * 0.5, groundY + 6, h.width * 0.5, h.height, 0, Math.PI, Math.PI * 2);
+        ctx.fill();
+      });
+
+      const groundGrad = ctx.createLinearGradient(0, groundY, 0, viewH);
+      groundGrad.addColorStop(0, '#22c55e');
+      groundGrad.addColorStop(0.25, '#15803d');
+      groundGrad.addColorStop(1, '#14532d');
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(-20, groundY, viewW + 40, viewH - groundY + 30);
+
+      if (earthquakeTimer > 0) {
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 3;
+        for (let crackX = 40; crackX < viewW; crackX += 95) {
+          const jitter = Math.sin(worldTime * 50 + crackX) * 6;
+          ctx.beginPath();
+          ctx.moveTo(crackX, groundY + 2);
+          ctx.lineTo(crackX + 14 + jitter, groundY + 18);
+          ctx.lineTo(crackX - 8 + jitter, groundY + 36);
+          ctx.stroke();
+        }
+      }
+
+      shockwaves.forEach(sw => {
+        ctx.save();
+        ctx.strokeStyle = sw.color;
+        ctx.globalAlpha = Math.max(0, sw.alpha);
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, Math.PI, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      collectibles.forEach(item => {
+        ctx.save();
+        ctx.translate(item.x, item.y);
+        if (item.kind === 'feather') {
+          ctx.fillStyle = '#fde047';
+          ctx.strokeStyle = '#ca8a04';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 14, 7, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#f97316';
+          ctx.strokeStyle = '#9a3412';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 9, 6, 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+
+      obstacles.forEach(obs => {
+        if (obs.kind === 'chirp') {
+          drawChirpEnemy(obs);
+        } else {
+          ctx.save();
+          ctx.fillStyle = '#78350f';
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.roundRect(obs.x - obs.w * 0.45, obs.y - obs.h, obs.w * 0.9, obs.h, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#4ade80';
+          ctx.beginPath();
+          ctx.roundRect(obs.x - obs.w * 0.45, obs.y - obs.h, obs.w * 0.9, 9, 6);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      if (player) {
+        drawHeroOnCanvas(player);
+      }
+
+      particles.forEach(pt => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      floatingTexts.forEach(ft => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+        ctx.font = 'bold 16px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.lineWidth = 4;
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      });
+
+      ctx.restore();
+    }
+
+    let lastTimestamp = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastTimestamp) / 1000));
+      lastTimestamp = now;
+
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
     window.addEventListener('keydown', e => {
-      if (['Space', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'].includes(e.code)) {
-        e.preventDefault();
-      }
       if (e.repeat) return;
-
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        if (gameState === 'START') {
-          startNewGame();
-        } else if (gameState === 'PLAYING') {
+        if (gameState === 'PLAYING') {
+          e.preventDefault();
+          jumpHeld = true;
           triggerJump();
         }
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        setDuck(true);
+        if (gameState === 'PLAYING') {
+          e.preventDefault();
+          setDucking(true);
+        }
       } else if (e.code === 'KeyE' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-        triggerSpecialAbility();
+        if (gameState === 'PLAYING') {
+          e.preventDefault();
+          triggerSpecialAbility();
+        }
       } else if (e.code === 'KeyC') {
-        if (gameState === 'PLAYING') cycleUnlockedHero();
-      } else if (e.code === 'KeyP' || e.code === 'Escape') {
-        if (gameState === 'PLAYING' || gameState === 'PAUSED') togglePause();
+        if (gameState === 'PLAYING' && player && saveData.unlockedHeroes.length > 1) {
+          const idx = saveData.unlockedHeroes.indexOf(player.id);
+          const nextId = saveData.unlockedHeroes[(idx + 1) % saveData.unlockedHeroes.length];
+          switchActiveHero(nextId, true);
+        }
+      } else if (e.code === 'Escape' || e.code === 'KeyP') {
+        if (gameState === 'PLAYING') {
+          gameState = 'PAUSED';
+          renderPauseSwitcher();
+          document.getElementById('screen-pause').classList.remove('hidden');
+        } else if (gameState === 'PAUSED') {
+          gameState = 'PLAYING';
+          document.getElementById('screen-pause').classList.add('hidden');
+        }
       }
     });
 
     window.addEventListener('keyup', e => {
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        releaseJump();
+        jumpHeld = false;
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        setDuck(false);
+        setDucking(false);
       }
     });
 
-    canvas.addEventListener('pointerdown', e => {
+    const jumpBtn = document.getElementById('touch-jump');
+    jumpBtn.addEventListener('pointerdown', e => {
       e.preventDefault();
-      if (gameState === 'PLAYING') {
-        triggerJump();
-      }
+      jumpHeld = true;
+      triggerJump();
     });
-
     window.addEventListener('pointerup', () => {
-      releaseJump();
+      jumpHeld = false;
+      setDucking(false);
     });
 
-    const touchJumpBtn = document.getElementById('touch-jump');
-    touchJumpBtn.addEventListener('pointerdown', e => {
+    const duckBtn = document.getElementById('touch-duck');
+    duckBtn.addEventListener('pointerdown', e => {
       e.preventDefault();
-      if (gameState === 'START') startNewGame();
-      else triggerJump();
+      setDucking(true);
     });
-    touchJumpBtn.addEventListener('pointerup', releaseJump);
+    duckBtn.addEventListener('pointerup', () => setDucking(false));
+    duckBtn.addEventListener('pointerleave', () => setDucking(false));
 
-    const touchDuckBtn = document.getElementById('touch-duck');
-    touchDuckBtn.addEventListener('pointerdown', e => {
+    document.getElementById('touch-special').addEventListener('pointerdown', e => {
       e.preventDefault();
-      setDuck(true);
-    });
-    touchDuckBtn.addEventListener('pointerup', () => setDuck(false));
-    touchDuckBtn.addEventListener('pointerleave', () => setDuck(false));
-
-    document.getElementById('touch-special').addEventListener('click', () => {
       triggerSpecialAbility();
+    });
+
+    let touchStartY = null;
+    canvas.addEventListener('pointerdown', e => {
+      if (gameState !== 'PLAYING') return;
+      touchStartY = e.clientY;
+      jumpHeld = true;
+      triggerJump();
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (gameState !== 'PLAYING' || touchStartY === null) return;
+      if (e.clientY - touchStartY > 36) {
+        setDucking(true);
+      }
+    });
+    canvas.addEventListener('pointerup', () => {
+      touchStartY = null;
+      jumpHeld = false;
+      setDucking(false);
     });
 
     document.getElementById('btn-start-game').addEventListener('click', startNewGame);
     document.getElementById('btn-play-again').addEventListener('click', startNewGame);
     document.getElementById('btn-restart-pause').addEventListener('click', startNewGame);
-    document.getElementById('btn-pause').addEventListener('click', togglePause);
-    document.getElementById('btn-resume').addEventListener('click', togglePause);
-    document.getElementById('hud-switch-btn').addEventListener('click', cycleUnlockedHero);
 
-    document.getElementById('banner-switch-btn').addEventListener('click', () => {
-      if (pendingBannerHero) {
-        switchActiveHeroMidRun(pendingBannerHero);
-        document.getElementById('banner-toast').classList.add('hidden');
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      if (gameState === 'PLAYING') {
+        gameState = 'PAUSED';
+        renderPauseSwitcher();
+        document.getElementById('screen-pause').classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btn-resume').addEventListener('click', () => {
+      if (gameState === 'PAUSED') {
+        gameState = 'PLAYING';
+        document.getElementById('screen-pause').classList.add('hidden');
       }
     });
 
     document.getElementById('btn-go-menu').addEventListener('click', () => {
-      gameState = 'START';
       document.getElementById('screen-gameover').classList.add('hidden');
+      document.getElementById('hud-overlay').classList.add('hidden');
       renderStartHeroCards();
       document.getElementById('screen-start').classList.remove('hidden');
+      gameState = 'START';
     });
 
-    document.getElementById('btn-sound').addEventListener('click', e => {
-      const muted = sfx.toggleMute();
-      e.currentTarget.textContent = muted ? '🔇' : '🔊';
+    document.getElementById('hud-switch-btn').addEventListener('click', () => {
+      if (!player || saveData.unlockedHeroes.length < 2) return;
+      const idx = saveData.unlockedHeroes.indexOf(player.id);
+      const nextId = saveData.unlockedHeroes[(idx + 1) % saveData.unlockedHeroes.length];
+      switchActiveHero(nextId, true);
+    });
+
+    document.getElementById('banner-switch-btn').addEventListener('click', () => {
+      if (newlyUnlockedHeroId) {
+        switchActiveHero(newlyUnlockedHeroId, true);
+        document.getElementById('banner-toast').classList.add('hidden');
+      }
     });
 
     document.getElementById('btn-open-roster').addEventListener('click', () => {
-      if (gameState === 'PLAYING') {
-        togglePause();
-      }
       renderRosterModal();
       document.getElementById('modal-roster').classList.remove('hidden');
     });
 
-    const closeRoster = () => document.getElementById('modal-roster').classList.add('hidden');
-    document.getElementById('btn-close-roster').addEventListener('click', closeRoster);
-    document.getElementById('btn-close-roster-bottom').addEventListener('click', closeRoster);
+    document.getElementById('btn-close-roster').addEventListener('click', () => {
+      document.getElementById('modal-roster').classList.add('hidden');
+    });
 
-    // =========================================================================
-    // 12. INITIALIZATION & ANIMATION LOOP
-    // =========================================================================
-    let lastTimestamp = 0;
+    document.getElementById('btn-close-roster-bottom').addEventListener('click', () => {
+      document.getElementById('modal-roster').classList.add('hidden');
+    });
 
-    function gameLoop(timestamp) {
-      if (!lastTimestamp) lastTimestamp = timestamp;
-      const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
-      lastTimestamp = timestamp;
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      const muted = sfx.toggleMute();
+      document.getElementById('btn-sound').textContent = muted ? '🔇' : '🔊';
+    });
 
-      update(dt);
-      render();
-
-      requestAnimationFrame(gameLoop);
-    }
-
-    window.onload = function () {
-      resizeCanvas();
-      initScenery();
-      updateHeaderStats();
-      renderStartHeroCards();
-      applyHeroStats(saveData.selectedHero, true);
-      requestAnimationFrame(gameLoop);
-    };
-
-    // Register Service Worker for offline mobile PWA playback
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
+    updateHeaderBadges();
+    resizeCanvas();
+    createScenery();
+    renderStartHeroCards();
+    requestAnimationFrame(loop);
   </script>
 </body>
 </html>
