@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rush-for-ducks-v5';
+const CACHE_NAME = 'rush-for-ducks-v6';
 const BASE_PATH = '/Game_Rush_for_Duck/';
 
 const ASSETS_TO_CACHE = [
