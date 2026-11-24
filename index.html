@@ -1,255 +1,2273 @@
-<!-- Top Title & Quick Controls Bar -->
-<header class="w-full max-w-[980px] flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3 px-1">
-  <div class="flex items-center gap-2.5">
-    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-500 border-2 border-white shadow-md flex items-center justify-center animate-bob">
-      <svg viewBox="0 0 64 64" class="w-8 h-8">
-        <path d="M21 15 C20 9, 26 8, 28 12 C30 7, 36 8, 36 13 C39 10, 43 13, 41 17 Z" fill="#EF4444" stroke="#0F172A" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle cx="32" cy="34" r="20" fill="#FDE047" stroke="#0F172A" stroke-width="3"/>
-        <ellipse cx="32" cy="21" rx="5.5" ry="7.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.2"/>
-        <ellipse cx="40" cy="22" rx="5" ry="7" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.2"/>
-        <circle cx="32.5" cy="17.5" r="2.1" fill="#0F172A"/>
-        <circle cx="40.5" cy="18.5" r="2.1" fill="#0F172A"/>
-        <line x1="40" y1="27" x2="55" y2="21" stroke="#0F172A" stroke-width="4.2" stroke-linecap="round"/>
-      </svg>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a103c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rush for Ducks" />
+  <link id="pwa-manifest-link" rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <title>Rush for Ducks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Fredoka', cursive, sans-serif;
+      --font-body: 'Nunito', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      overscroll-behavior: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      margin: 0;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      font-family: var(--font-body);
+      background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 55%, #86efac 100%);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: var(--font-display);
+    }
+
+    /* Custom Game Buttons */
+    .game-btn {
+      font-family: var(--font-display);
+      touch-action: manipulation;
+      cursor: pointer;
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, filter 0.15s ease;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 45%;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .game-btn:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.05);
+    }
+
+    .game-btn:active:not(:disabled) {
+      transform: translateY(3px) scale(0.98);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .game-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(0.4);
+    }
+
+    /* Canvas Wrapper */
+    #game-frame {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      aspect-ratio: 16 / 9;
+      min-height: 360px;
+      max-height: 620px;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(14, 116, 144, 0.35), 0 0 0 6px #ffffff, 0 0 0 10px #0284c7;
+      background: #7dd3fc;
+    }
+
+    @media (max-width: 640px) {
+      #game-frame {
+        aspect-ratio: auto;
+        height: 66dvh;
+        min-height: 390px;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(14, 116, 144, 0.35), 0 0 0 4px #ffffff;
+      }
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .animate-bob {
+      animation: floatBob 2.4s ease-in-out infinite;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #0284c7;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4">
+
+  <!-- Top Title & Quick Controls Bar -->
+  <header class="w-full max-w-[980px] flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3 px-1">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-500 border-2 border-white shadow-md flex items-center justify-center animate-bob">
+        <svg viewBox="0 0 64 64" class="w-8 h-8">
+          <path d="M21 15 C20 9, 26 8, 28 12 C30 7, 36 8, 36 13 C39 10, 43 13, 41 17 Z" fill="#EF4444" stroke="#0F172A" stroke-width="2.2" stroke-linejoin="round"/>
+          <circle cx="32" cy="34" r="20" fill="#FDE047" stroke="#0F172A" stroke-width="3"/>
+          <ellipse cx="32" cy="21" rx="5.5" ry="7.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.2"/>
+          <ellipse cx="40" cy="22" rx="5" ry="7" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.2"/>
+          <circle cx="32.5" cy="17.5" r="2.1" fill="#0F172A"/>
+          <circle cx="40.5" cy="18.5" r="2.1" fill="#0F172A"/>
+          <line x1="40" y1="27" x2="55" y2="21" stroke="#0F172A" stroke-width="4.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-3xl font-bold text-sky-950 tracking-tight drop-shadow-sm leading-none">
+          Rush for Ducks
+        </h1>
+        <p class="text-[11px] sm:text-sm font-bold text-sky-800/90">
+          Peep (Lv.1) • Quack (Lv.3) • Hoot (Lv.10) • Rosie (Lv.13)
+        </p>
+      </div>
     </div>
-    <div>
-      <h1 class="text-xl sm:text-3xl font-bold text-sky-950 tracking-tight drop-shadow-sm leading-none">
-        Rush for Ducks
-      </h1>
-      <p class="text-[11px] sm:text-sm font-bold text-sky-800/90">
-        Peep (Lv.1) • Quack (Lv.3) • Hoot (Lv.10) • Rosie (Lv.13)
-      </p>
+
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <div class="bg-white/85 border-2 border-sky-200 rounded-xl px-2.5 py-1.5 shadow-sm flex items-center gap-1">
+        <span class="text-amber-500 text-sm sm:text-base">★</span>
+        <span class="text-xs sm:text-sm font-extrabold text-sky-950">Max Lv: <span id="header-max-level" class="text-amber-600">1</span></span>
+      </div>
+
+      <button type="button" id="btn-open-roster" class="game-btn bg-gradient-to-b from-purple-500 to-purple-700 text-white text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border-2 border-purple-300 flex items-center gap-1">
+        <span>🦆</span>
+        <span>Heroes &amp; Chirp</span>
+      </button>
+
+      <button type="button" id="btn-sound" aria-label="Toggle Sound" class="game-btn bg-gradient-to-b from-sky-500 to-sky-700 text-white text-sm font-bold p-2 sm:px-3 sm:py-2 rounded-xl border-2 border-sky-300">
+        🔊
+      </button>
     </div>
-  </div>
+  </header>
 
-  <div class="flex items-center gap-1.5 sm:gap-2">
-    <div class="bg-white/85 border-2 border-sky-200 rounded-xl px-2.5 py-1.5 shadow-sm flex items-center gap-1">
-      <span class="text-amber-500 text-sm sm:text-base">★</span>
-      <span class="text-xs sm:text-sm font-extrabold text-sky-950">Max Lv: <span id="header-max-level" class="text-amber-600">1</span></span>
-    </div>
+  <!-- Main Game Viewport Container -->
+  <main id="game-frame">
+    <canvas id="gameCanvas"></canvas>
 
-    <button type="button" id="btn-open-roster" class="game-btn bg-gradient-to-b from-purple-500 to-purple-700 text-white text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border-2 border-purple-300 flex items-center gap-1">
-      <span>🦆</span>
-      <span>Heroes &amp; Chirp</span>
-    </button>
-
-    <button type="button" id="btn-sound" aria-label="Toggle Sound" class="game-btn bg-gradient-to-b from-sky-500 to-sky-700 text-white text-sm font-bold p-2 sm:px-3 sm:py-2 rounded-xl border-2 border-sky-300">
-      🔊
-    </button>
-  </div>
-</header>
-
-<!-- Main Game Viewport Container -->
-<main id="game-frame">
-  <canvas id="gameCanvas"></canvas>
-
-  <!-- Live In-Game HUD Overlay -->
-  <div id="hud-overlay" class="hidden absolute inset-x-0 top-0 p-2 sm:p-4 pointer-events-none flex flex-col gap-2 z-10">
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2 bg-slate-900/80 text-white px-2.5 py-1.5 rounded-2xl border border-white/25 shadow-lg pointer-events-auto">
-        <div id="hud-hero-avatar" class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center overflow-hidden"></div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span id="hud-hero-name" class="font-display font-bold text-sm sm:text-base text-yellow-300 leading-none">Peep</span>
-            <button type="button" id="hud-switch-btn" title="Switch Unlocked Hero [C]" class="text-[11px] bg-white/20 hover:bg-white/30 px-1.5 py-0.5 rounded-md font-bold transition">
-              Switch ↻
-            </button>
+    <!-- Live In-Game HUD Overlay -->
+    <div id="hud-overlay" class="hidden absolute inset-x-0 top-0 p-2 sm:p-4 pointer-events-none flex flex-col gap-2 z-10">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 bg-slate-900/80 text-white px-2.5 py-1.5 rounded-2xl border border-white/25 shadow-lg pointer-events-auto">
+          <div id="hud-hero-avatar" class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center overflow-hidden"></div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span id="hud-hero-name" class="font-display font-bold text-sm sm:text-base text-yellow-300 leading-none">Peep</span>
+              <button type="button" id="hud-switch-btn" title="Switch Unlocked Hero [C]" class="text-[11px] bg-white/20 hover:bg-white/30 px-1.5 py-0.5 rounded-md font-bold transition">
+                Switch ↻
+              </button>
+            </div>
+            <div id="hud-hearts" class="flex items-center gap-0.5 text-sm sm:text-base mt-0.5">
+              ❤️❤️❤️
+            </div>
           </div>
-          <div id="hud-hearts" class="flex items-center gap-0.5 text-sm sm:text-base mt-0.5">
-            ❤️❤️❤️
+        </div>
+
+        <div class="flex-1 min-w-[140px] max-w-xs bg-slate-900/80 text-white px-3 py-1.5 rounded-2xl border border-white/25 shadow-lg">
+          <div class="flex items-center justify-between text-xs font-extrabold mb-1">
+            <span class="text-amber-300 font-display text-sm">LEVEL <span id="hud-level">1</span></span>
+            <span id="hud-next-unlock" class="text-sky-200 text-[10px] sm:text-[11px]">Next: Quack at Lv.3</span>
+          </div>
+          <div class="w-full h-2.5 sm:h-3 bg-slate-800 rounded-full overflow-hidden border border-white/20 p-0.5">
+            <div id="hud-xp-bar" class="h-full rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-lime-400 transition-all duration-150" style="width: 0%;"></div>
           </div>
         </div>
-      </div>
 
-      <div class="flex-1 min-w-[140px] max-w-xs bg-slate-900/80 text-white px-3 py-1.5 rounded-2xl border border-white/25 shadow-lg">
-        <div class="flex items-center justify-between text-xs font-extrabold mb-1">
-          <span class="text-amber-300 font-display text-sm">LEVEL <span id="hud-level">1</span></span>
-          <span id="hud-next-unlock" class="text-sky-200 text-[10px] sm:text-[11px]">Next: Quack at Lv.3</span>
-        </div>
-        <div class="w-full h-2.5 sm:h-3 bg-slate-800 rounded-full overflow-hidden border border-white/20 p-0.5">
-          <div id="hud-xp-bar" class="h-full rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-lime-400 transition-all duration-150" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 pointer-events-auto">
-        <div class="bg-slate-900/80 text-white px-3 py-1.5 rounded-2xl border border-white/25 shadow-lg text-right">
-          <div class="text-[10px] uppercase tracking-wider text-sky-300 font-bold leading-none">Score</div>
-          <div id="hud-score" class="font-display font-bold text-base sm:text-xl text-white leading-tight">0</div>
-        </div>
-        <button type="button" id="btn-pause" class="game-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold w-10 h-10 rounded-2xl border-2 border-amber-200 flex items-center justify-center text-base">
-          ⏸
-        </button>
-      </div>
-    </div>
-
-    <div id="hud-special-power" class="hidden self-start bg-purple-950/90 text-purple-100 px-3 py-1 rounded-xl border border-purple-400/50 text-xs font-bold flex items-center gap-2 shadow">
-      <span id="hud-special-label">🦉 Owl Sonic Blast:</span>
-      <div class="w-20 sm:w-24 h-2.5 bg-purple-900 rounded-full overflow-hidden border border-purple-400/40">
-        <div id="hud-special-bar" class="h-full bg-gradient-to-r from-fuchsia-400 to-amber-300 transition-all duration-100" style="width: 100%;"></div>
-      </div>
-      <span class="text-[10px] sm:text-[11px] text-amber-300">[E / Special]</span>
-    </div>
-  </div>
-
-  <!-- Celebratory Level-Up & Hero Unlock Toast Banner -->
-  <div id="banner-toast" class="hidden absolute top-16 sm:top-20 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[460px] z-30 pointer-events-none">
-    <div id="banner-card" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-3 sm:p-4 rounded-2xl border-4 border-yellow-300 shadow-2xl text-center">
-      <div id="banner-badge" class="inline-block bg-yellow-300 text-slate-950 font-display font-bold text-xs uppercase px-2.5 py-0.5 rounded-full mb-1">
-        LEVEL UP!
-      </div>
-      <h3 id="banner-title" class="font-display text-lg sm:text-2xl font-bold text-white drop-shadow">
-        Reached Level 2!
-      </h3>
-      <p id="banner-subtitle" class="text-xs sm:text-sm font-bold text-yellow-100 mt-0.5">
-        Speed increases! Watch out for Chirp!
-      </p>
-      <div id="banner-action-wrap" class="hidden mt-2 pointer-events-auto">
-        <button type="button" id="banner-switch-btn" class="game-btn bg-yellow-300 text-slate-950 font-bold text-xs sm:text-sm px-4 py-1.5 rounded-xl border-2 border-white">
-          Play as New Hero Now!
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- START SCREEN OVERLAY -->
-  <div id="screen-start" class="absolute inset-0 bg-sky-950/60 flex items-center justify-center p-2 sm:p-5 z-20 overflow-y-auto" style="touch-action: pan-y;">
-    <div class="bg-white/95 rounded-2xl sm:rounded-3xl border-4 border-sky-400 shadow-2xl max-w-3xl w-full p-3 sm:p-6 text-center my-auto">
-      <div class="hidden sm:inline-flex items-center gap-2 bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full mb-2">
-        <span>🌿 POND &amp; MEADOW DASH</span>
-        <span>•</span>
-        <span>ENEMY: CHIRP THE ROBIN 🐦</span>
-      </div>
-
-      <h2 class="text-xl sm:text-4xl font-bold text-sky-950 tracking-tight mb-0.5 sm:mb-1">
-        Choose Your Bird &amp; Rush!
-      </h2>
-      <p class="text-[11px] sm:text-sm text-slate-600 font-semibold mb-2 sm:mb-3.5">
-        Unlock Quack (Lv.3), Hoot (Lv.10), Rosie (Lv.13). Dodge <span class="text-rose-600 font-extrabold">Chirp</span>!
-      </p>
-
-      <div id="start-hero-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2.5 mb-2.5 sm:mb-4 text-left"></div>
-
-      <div class="hidden sm:flex bg-sky-50 border-2 border-sky-200 rounded-2xl p-2.5 mb-4 flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-sky-900">
-        <span>⬆️ <b>Space / W / Tap</b>: Jump &amp; Flap</span>
-        <span>⬇️ <b>Down / S</b>: Duck &amp; Dive Smash</span>
-        <span>⚡ <b>E / Shift</b>: Hero Special</span>
-        <span>↻ <b>C</b>: Switch Bird</span>
-      </div>
-
-      <div class="flex items-center justify-center">
-        <button type="button" id="btn-start-game" class="game-btn w-full sm:w-auto bg-gradient-to-b from-lime-400 to-green-600 text-white text-base sm:text-xl font-bold px-8 py-2.5 sm:py-3 rounded-2xl border-2 border-lime-200 tracking-wide">
-          ▶ START RUSHING!
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAUSE OVERLAY -->
-  <div id="screen-pause" class="hidden absolute inset-0 bg-slate-950/65 flex items-center justify-center p-3 sm:p-4 z-20">
-    <div class="bg-white rounded-3xl border-4 border-amber-400 shadow-2xl max-w-lg w-full p-4 sm:p-6 text-center">
-      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">Game Paused</h2>
-      <p class="text-xs sm:text-sm text-slate-600 font-semibold mb-3 sm:mb-4">Switch your unlocked hero or resume your run!</p>
-
-      <div id="pause-hero-switcher" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 sm:mb-5"></div>
-
-      <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
-        <button type="button" id="btn-resume" class="game-btn bg-gradient-to-b from-lime-400 to-green-600 text-white font-bold px-6 py-2.5 rounded-2xl border-2 border-lime-200">
-          ▶ Resume
-        </button>
-        <button type="button" id="btn-restart-pause" class="game-btn bg-gradient-to-b from-sky-400 to-blue-600 text-white font-bold px-6 py-2.5 rounded-2xl border-2 border-sky-200">
-          ↻ Restart
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- GAME OVER OVERLAY -->
-  <div id="screen-gameover" class="hidden absolute inset-0 bg-slate-950/75 flex items-center justify-center p-3 sm:p-4 z-20">
-    <div class="bg-white rounded-3xl border-4 border-rose-400 shadow-2xl max-w-md w-full p-4 sm:p-6 text-center">
-      <div class="inline-block bg-rose-100 text-rose-700 font-extrabold text-xs px-3 py-1 rounded-full mb-1">
-        CAUGHT BY CHIRP! 🐦
-      </div>
-      <h2 class="text-2xl sm:text-4xl font-bold text-slate-900 mb-2.5 sm:mb-3">Feather Ruffled!</h2>
-
-      <div class="grid grid-cols-3 gap-2 bg-slate-100 rounded-2xl p-2.5 sm:p-3 mb-3 sm:mb-4 border border-slate-200">
-        <div>
-          <div class="text-[11px] font-bold text-slate-500 uppercase">Score</div>
-          <div id="go-score" class="font-display text-xl sm:text-2xl font-bold text-sky-700">0</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-bold text-slate-500 uppercase">Best</div>
-          <div id="go-best" class="font-display text-xl sm:text-2xl font-bold text-amber-600">0</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-bold text-slate-500 uppercase">Level</div>
-          <div id="go-level" class="font-display text-xl sm:text-2xl font-bold text-purple-700">1</div>
+        <div class="flex items-center gap-2 pointer-events-auto">
+          <div class="bg-slate-900/80 text-white px-3 py-1.5 rounded-2xl border border-white/25 shadow-lg text-right">
+            <div class="text-[10px] uppercase tracking-wider text-sky-300 font-bold leading-none">Score</div>
+            <div id="hud-score" class="font-display font-bold text-base sm:text-xl text-white leading-tight">0</div>
+          </div>
+          <button type="button" id="btn-pause" class="game-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold w-10 h-10 rounded-2xl border-2 border-amber-200 flex items-center justify-center text-base">
+            ⏸
+          </button>
         </div>
       </div>
 
-      <p id="go-unlock-hint" class="text-xs font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl p-2 mb-3 sm:mb-4">
-        Keep leveling up to unlock Quack (Lv.3), Hoot (Lv.10), and Rosie (Lv.13)!
-      </p>
-
-      <div class="flex flex-col sm:flex-row gap-2 justify-center">
-        <button type="button" id="btn-play-again" class="game-btn bg-gradient-to-b from-lime-400 to-green-600 text-white text-base sm:text-lg font-bold px-7 py-2.5 sm:py-3 rounded-2xl border-2 border-lime-200">
-          ↻ Play Again
-        </button>
-        <button type="button" id="btn-go-menu" class="game-btn bg-gradient-to-b from-amber-400 to-orange-500 text-white font-bold px-5 py-2.5 sm:py-3 rounded-2xl border-2 border-amber-200">
-          🦆 Heroes
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHARACTER SHOWCASE / ROSTER MODAL -->
-  <div id="modal-roster" class="hidden absolute inset-0 bg-slate-950/75 flex items-center justify-center p-2.5 sm:p-5 z-30">
-    <div class="bg-white rounded-3xl border-4 border-purple-400 shadow-2xl max-w-2xl w-full max-h-[92%] flex flex-col overflow-hidden">
-      <div class="p-3 sm:p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-between">
-        <div>
-          <h2 class="text-lg sm:text-2xl font-bold leading-tight">Flock &amp; Foe Encyclopedia</h2>
-          <p class="text-xs text-purple-100 font-semibold">Meet Peep, Quack, Hoot, Rosie, and their rival Chirp!</p>
+      <div id="hud-special-power" class="hidden self-start bg-purple-950/90 text-purple-100 px-3 py-1 rounded-xl border border-purple-400/50 text-xs font-bold flex items-center gap-2 shadow">
+        <span id="hud-special-label">🦉 Owl Sonic Blast:</span>
+        <div class="w-20 sm:w-24 h-2.5 bg-purple-900 rounded-full overflow-hidden border border-purple-400/40">
+          <div id="hud-special-bar" class="h-full bg-gradient-to-r from-fuchsia-400 to-amber-300 transition-all duration-100" style="width: 100%;"></div>
         </div>
-        <button type="button" id="btn-close-roster" class="game-btn bg-white/20 hover:bg-white/30 text-white font-bold w-9 h-9 rounded-xl flex items-center justify-center">
-          ✕
-        </button>
-      </div>
-
-      <div id="roster-list" class="p-3 sm:p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 bg-slate-50" style="touch-action: pan-y;"></div>
-
-      <div class="p-2.5 sm:p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 font-bold">
-        <span>Progress is saved automatically.</span>
-        <button type="button" id="btn-close-roster-bottom" class="game-btn bg-purple-600 text-white px-4 py-1.5 rounded-xl">
-          Got It!
-        </button>
+        <span class="text-[10px] sm:text-[11px] text-amber-300">[E / Special]</span>
       </div>
     </div>
-  </div>
-</main>
 
-<!-- Touch / Mobile Friendly Controls Bar Below Canvas -->
-<footer class="w-full max-w-[980px] mt-2 sm:mt-3 flex items-center justify-between gap-2 px-1">
-  <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-    <button type="button" id="touch-jump" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-amber-400 to-orange-500 text-white font-bold text-sm sm:text-lg px-4 sm:px-5 py-3 rounded-2xl border-2 border-amber-200 flex items-center justify-center gap-1.5">
-      <span>⬆️</span>
-      <span>JUMP / FLY</span>
-    </button>
-    <button type="button" id="touch-duck" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-sky-500 to-blue-700 text-white font-bold text-sm sm:text-lg px-4 sm:px-5 py-3 rounded-2xl border-2 border-sky-300 flex items-center justify-center gap-1.5">
-      <span>⬇️</span>
-      <span>DUCK / DIVE</span>
-    </button>
-    <button type="button" id="touch-special" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-purple-500 to-fuchsia-700 text-white font-bold text-sm sm:text-lg px-4 sm:px-5 py-3 rounded-2xl border-2 border-purple-300 flex items-center justify-center gap-1">
-      <span>⚡</span>
-      <span>SPECIAL</span>
-    </button>
-  </div>
+    <!-- Celebratory Level-Up & Hero Unlock Toast Banner -->
+    <div id="banner-toast" class="hidden absolute top-16 sm:top-20 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[460px] z-30 pointer-events-none">
+      <div id="banner-card" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-3 sm:p-4 rounded-2xl border-4 border-yellow-300 shadow-2xl text-center">
+        <div id="banner-badge" class="inline-block bg-yellow-300 text-slate-950 font-display font-bold text-xs uppercase px-2.5 py-0.5 rounded-full mb-1">
+          LEVEL UP!
+        </div>
+        <h3 id="banner-title" class="font-display text-lg sm:text-2xl font-bold text-white drop-shadow">
+          Reached Level 2!
+        </h3>
+        <p id="banner-subtitle" class="text-xs sm:text-sm font-bold text-yellow-100 mt-0.5">
+          Speed increases! Watch out for Chirp!
+        </p>
+        <div id="banner-action-wrap" class="hidden mt-2 pointer-events-auto">
+          <button type="button" id="banner-switch-btn" class="game-btn bg-yellow-300 text-slate-950 font-bold text-xs sm:text-sm px-4 py-1.5 rounded-xl border-2 border-white">
+            Play as New Hero Now!
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <div class="hidden xl:flex items-center gap-2 text-xs font-extrabold text-sky-950/80 bg-white/65 px-3 py-2 rounded-xl border border-white">
-    <span>🐣 Peep (Lv.1)</span>
-    <span>•</span>
-    <span>🦆 Quack (Lv.3)</span>
-    <span>•</span>
-    <span>🦉 Hoot (Lv.10)</span>
-    <span>•</span>
-    <span>✨ Rosie (Lv.13)</span>
-  </div>
-</footer>
+    <!-- START SCREEN OVERLAY (Mobile-Optimized Compact Layout) -->
+    <div id="screen-start" class="absolute inset-0 bg-sky-950/60 flex items-center justify-center p-2 sm:p-5 z-20 overflow-y-auto" style="touch-action: pan-y;">
+      <div class="bg-white/95 rounded-2xl sm:rounded-3xl border-4 border-sky-400 shadow-2xl max-w-3xl w-full p-3 sm:p-6 text-center my-auto">
+        <div class="hidden sm:inline-flex items-center gap-2 bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full mb-2">
+          <span>🌿 POND &amp; MEADOW DASH</span>
+          <span>•</span>
+          <span>ENEMY: CHIRP THE ROBIN 🐦</span>
+        </div>
+
+        <h2 class="text-xl sm:text-4xl font-bold text-sky-950 tracking-tight mb-0.5 sm:mb-1">
+          Choose Your Bird &amp; Rush!
+        </h2>
+        <p class="text-[11px] sm:text-sm text-slate-600 font-semibold mb-2 sm:mb-3.5">
+          Unlock Quack (Lv.3), Hoot (Lv.10), Rosie (Lv.13). Dodge <span class="text-rose-600 font-extrabold">Chirp</span>!
+        </p>
+
+        <!-- 2x2 grid on mobile so START RUSHING! button is always visible on screen -->
+        <div id="start-hero-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2.5 mb-2.5 sm:mb-4 text-left">
+          <!-- Cards populated dynamically by JS -->
+        </div>
+
+        <div class="hidden sm:flex bg-sky-50 border-2 border-sky-200 rounded-2xl p-2.5 mb-4 flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-sky-900">
+          <span>⬆️ <b>Space / W / Tap</b>: Jump &amp; Flap</span>
+          <span>⬇️ <b>Down / S</b>: Duck &amp; Dive Smash</span>
+          <span>⚡ <b>E / Shift</b>: Hero Special</span>
+          <span>↻ <b>C</b>: Switch Bird</span>
+        </div>
+
+        <div class="flex items-center justify-center">
+          <button type="button" id="btn-start-game" class="game-btn w-full sm:w-auto bg-gradient-to-b from-lime-400 to-green-600 text-white text-base sm:text-xl font-bold px-8 py-2.5 sm:py-3 rounded-2xl border-2 border-lime-200 tracking-wide">
+            ▶ START RUSHING!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE OVERLAY -->
+    <div id="screen-pause" class="hidden absolute inset-0 bg-slate-950/65 flex items-center justify-center p-3 sm:p-4 z-20">
+      <div class="bg-white rounded-3xl border-4 border-amber-400 shadow-2xl max-w-lg w-full p-4 sm:p-6 text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">Game Paused</h2>
+        <p class="text-xs sm:text-sm text-slate-600 font-semibold mb-3 sm:mb-4">Switch your unlocked hero or resume your run!</p>
+
+        <div id="pause-hero-switcher" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 sm:mb-5">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
+          <button type="button" id="btn-resume" class="game-btn bg-gradient-to-b from-lime-400 to-green-600 text-white font-bold px-6 py-2.5 rounded-2xl border-2 border-lime-200">
+            ▶ Resume
+          </button>
+          <button type="button" id="btn-restart-pause" class="game-btn bg-gradient-to-b from-sky-400 to-blue-600 text-white font-bold px-6 py-2.5 rounded-2xl border-2 border-sky-200">
+            ↻ Restart
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="screen-gameover" class="hidden absolute inset-0 bg-slate-950/75 flex items-center justify-center p-3 sm:p-4 z-20">
+      <div class="bg-white rounded-3xl border-4 border-rose-400 shadow-2xl max-w-md w-full p-4 sm:p-6 text-center">
+        <div class="inline-block bg-rose-100 text-rose-700 font-extrabold text-xs px-3 py-1 rounded-full mb-1">
+          CAUGHT BY CHIRP! 🐦
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-bold text-slate-900 mb-2.5 sm:mb-3">Feather Ruffled!</h2>
+
+        <div class="grid grid-cols-3 gap-2 bg-slate-100 rounded-2xl p-2.5 sm:p-3 mb-3 sm:mb-4 border border-slate-200">
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase">Score</div>
+            <div id="go-score" class="font-display text-xl sm:text-2xl font-bold text-sky-700">0</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase">Best</div>
+            <div id="go-best" class="font-display text-xl sm:text-2xl font-bold text-amber-600">0</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase">Level</div>
+            <div id="go-level" class="font-display text-xl sm:text-2xl font-bold text-purple-700">1</div>
+          </div>
+        </div>
+
+        <p id="go-unlock-hint" class="text-xs font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl p-2 mb-3 sm:mb-4">
+          Keep leveling up to unlock Quack (Lv.3), Hoot (Lv.10), and Rosie (Lv.13)!
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-2 justify-center">
+          <button type="button" id="btn-play-again" class="game-btn bg-gradient-to-b from-lime-400 to-green-600 text-white text-base sm:text-lg font-bold px-7 py-2.5 sm:py-3 rounded-2xl border-2 border-lime-200">
+            ↻ Play Again
+          </button>
+          <button type="button" id="btn-go-menu" class="game-btn bg-gradient-to-b from-amber-400 to-orange-500 text-white font-bold px-5 py-2.5 sm:py-3 rounded-2xl border-2 border-amber-200">
+            🦆 Heroes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARACTER SHOWCASE / ROSTER MODAL -->
+    <div id="modal-roster" class="hidden absolute inset-0 bg-slate-950/75 flex items-center justify-center p-2.5 sm:p-5 z-30">
+      <div class="bg-white rounded-3xl border-4 border-purple-400 shadow-2xl max-w-2xl w-full max-h-[92%] flex flex-col overflow-hidden">
+        <div class="p-3 sm:p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-between">
+          <div>
+            <h2 class="text-lg sm:text-2xl font-bold leading-tight">Flock &amp; Foe Encyclopedia</h2>
+            <p class="text-xs text-purple-100 font-semibold">Meet Peep, Quack, Hoot, Rosie, and their rival Chirp!</p>
+          </div>
+          <button type="button" id="btn-close-roster" class="game-btn bg-white/20 hover:bg-white/30 text-white font-bold w-9 h-9 rounded-xl flex items-center justify-center">
+            ✕
+          </button>
+        </div>
+
+        <div id="roster-list" class="p-3 sm:p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 bg-slate-50" style="touch-action: pan-y;">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="p-2.5 sm:p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 font-bold">
+          <span>Progress is saved automatically.</span>
+          <button type="button" id="btn-close-roster-bottom" class="game-btn bg-purple-600 text-white px-4 py-1.5 rounded-xl">
+            Got It!
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Touch / Mobile Friendly Controls Bar Below Canvas -->
+  <footer class="w-full max-w-[980px] mt-2 sm:mt-3 flex items-center justify-between gap-2 px-1">
+    <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+      <button type="button" id="touch-jump" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-amber-400 to-orange-500 text-white font-bold text-sm sm:text-lg px-4 sm:px-5 py-3 rounded-2xl border-2 border-amber-200 flex items-center justify-center gap-1.5">
+        <span>⬆️</span>
+        <span>JUMP / FLY</span>
+      </button>
+      <button type="button" id="touch-duck" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-sky-500 to-blue-700 text-white font-bold text-sm sm:text-lg px-4 sm:px-5 py-3 rounded-2xl border-2 border-sky-300 flex items-center justify-center gap-1.5">
+        <span>⬇️</span>
+        <span>DUCK / DIVE</span>
+      </button>
+      <button type="button" id="touch-special" class="game-btn flex-1 sm:flex-initial bg-gradient-to-b from-purple-500 to-fuchsia-700 text-white font-bold text-sm sm:text-lg px-4 sm:px-5 py-3 rounded-2xl border-2 border-purple-300 flex items-center justify-center gap-1">
+        <span>⚡</span>
+        <span>SPECIAL</span>
+      </button>
+    </div>
+
+    <div class="hidden xl:flex items-center gap-2 text-xs font-extrabold text-sky-950/80 bg-white/65 px-3 py-2 rounded-xl border border-white">
+      <span>🐣 Peep (Lv.1)</span>
+      <span>•</span>
+      <span>🦆 Quack (Lv.3)</span>
+      <span>•</span>
+      <span>🦉 Hoot (Lv.10)</span>
+      <span>•</span>
+      <span>✨ Rosie (Lv.13)</span>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * RUSH FOR DUCKS
+     * Complete 2D Arcade Endless-Runner / Platformer + Mobile-Safe PWA Setup
+     */
+
+    (function setupIndependentPwa() {
+      const isFileProtocol = window.location.protocol === 'file:';
+      const manifestLink = document.getElementById('pwa-manifest-link');
+
+      if (isFileProtocol && manifestLink) {
+        try {
+          const fallbackManifest = {
+            name: 'Rush for Ducks',
+            short_name: 'Rush for Ducks',
+            description: 'Arcade endless-runner starring Peep, Quack, Hoot, and Rosie!',
+            display: 'standalone',
+            background_color: '#1a103c',
+            theme_color: '#1a103c'
+          };
+          const blob = new Blob([JSON.stringify(fallbackManifest)], { type: 'application/json' });
+          manifestLink.href = URL.createObjectURL(blob);
+        } catch (err) {
+          // Ignore blob fallback errors
+        }
+      }
+
+      if (!isFileProtocol && 'serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {
+            // Ignore if sw.js is absent
+          });
+        });
+      }
+    })();
+
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        try {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              this.ctx = new AudioCtx();
+            }
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        } catch (e) {
+          // Never block gameplay if mobile audio context is restricted
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        return this.muted;
+      }
+
+      playTone(freq, endFreq, duration, type = 'sine', volume = 0.15, delay = 0) {
+        if (this.muted) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          if (endFreq !== null) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + duration);
+          }
+
+          gain.gain.setValueAtTime(volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch (e) {
+          // Ignore audio errors on mobile
+        }
+      }
+
+      playJump(heroId, jumpNum) {
+        if (heroId === 'peep') {
+          this.playTone(360, jumpNum === 1 ? 640 : 880, 0.14, 'triangle', 0.16);
+        } else if (heroId === 'quack') {
+          this.playTone(300, 210, 0.09, 'sawtooth', 0.11);
+          this.playTone(260, 440, 0.14, 'triangle', 0.13, 0.05);
+        } else if (heroId === 'hoot') {
+          this.playTone(190 + jumpNum * 45, 340 + jumpNum * 50, 0.18, 'sine', 0.18);
+        } else if (heroId === 'rosie') {
+          this.playTone(460 + jumpNum * 80, 820 + jumpNum * 90, 0.14, 'triangle', 0.15);
+        }
+      }
+
+      playCollect(isFeather = false) {
+        if (isFeather) {
+          this.playTone(660, 990, 0.12, 'sine', 0.14);
+          this.playTone(990, 1320, 0.18, 'triangle', 0.14, 0.09);
+        } else {
+          this.playTone(580, 880, 0.1, 'sine', 0.12);
+        }
+      }
+
+      playHootBlast() {
+        this.playTone(340, 250, 0.22, 'sine', 0.22);
+        this.playTone(250, 180, 0.35, 'triangle', 0.22, 0.16);
+        this.playTone(620, 140, 0.32, 'sawtooth', 0.1, 0.05);
+      }
+
+      playRosieStarryGaze() {
+        this.playTone(740, 1180, 0.14, 'sine', 0.16, 0);
+        this.playTone(980, 1480, 0.16, 'triangle', 0.15, 0.07);
+        this.playTone(1240, 620, 0.22, 'sine', 0.14, 0.15);
+      }
+
+      playHurt() {
+        this.playTone(260, 95, 0.28, 'sawtooth', 0.18);
+        this.playTone(180, 75, 0.25, 'square', 0.12, 0.06);
+      }
+
+      playStunEnemy() {
+        this.playTone(420, 780, 0.16, 'square', 0.14);
+      }
+
+      playLevelUp(isUnlock = false) {
+        const notes = isUnlock
+          ? [523.25, 659.25, 783.99, 1046.5, 1318.5]
+          : [440, 554.37, 659.25, 880];
+        notes.forEach((n, idx) => {
+          this.playTone(n, n * 1.03, 0.18, 'triangle', 0.16, idx * 0.085);
+        });
+      }
+    }
+
+    const sfx = new SoundEngine();
+
+    const HEROES = {
+      peep: {
+        id: 'peep',
+        name: 'Peep',
+        title: 'Crested Yellow Chick',
+        unlockLevel: 1,
+        maxHearts: 3,
+        maxJumps: 2,
+        speedMult: 1.0,
+        jumpForce: -690,
+        gravity: 1850,
+        badgeColor: 'bg-yellow-300 text-amber-950',
+        abilityName: 'Agile Double-Jump',
+        description: 'A round yellow chick with a bright red crest, upward-looking eyes, and tall black legs ready to dash!',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <path d="M33 61 L33 74 L27 76 M45 61 L45 74 L39 76" stroke="#0F172A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M25 19 C24 12, 31 11, 33 16 C36 10, 43 11, 43 17 C46 14, 51 17, 48 22 Z" fill="#EF4444" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
+            <circle cx="39" cy="42" r="21" fill="#FDE047" stroke="#0F172A" stroke-width="3.4"/>
+            <ellipse cx="40" cy="26" rx="6.2" ry="8.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
+            <ellipse cx="49" cy="27.5" rx="5.6" ry="7.8" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
+            <circle cx="40.8" cy="21.5" r="2.4" fill="#0F172A"/>
+            <circle cx="49.8" cy="23" r="2.4" fill="#0F172A"/>
+            <line x1="49" y1="33" x2="66" y2="26" stroke="#0F172A" stroke-width="4.8" stroke-linecap="round"/>
+          </svg>`
+      },
+      quack: {
+        id: 'quack',
+        name: 'Quack',
+        title: 'Vertical Oval Purple Duck',
+        unlockLevel: 3,
+        maxHearts: 3,
+        maxJumps: 2,
+        speedMult: 1.12,
+        jumpForce: -715,
+        gravity: 1750,
+        badgeColor: 'bg-purple-200 text-purple-950',
+        abilityName: 'Air Glide + Dive Ground Smash Earthquake',
+        description: 'A tall vertical-oval purple duck wearing a white sailor hat! Hold Jump to glide, and press Dive mid-air to smash the ground and trigger an earthquake!',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <ellipse cx="40" cy="46" rx="22" ry="25" fill="#7C5CE6" stroke="#1E1B4B" stroke-width="3.5"/>
+            <path d="M31 20 L33 13 Q43 10 53 13 L55 20 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
+            <path d="M28 18 Q43 24 58 18 L56 25 Q43 29 30 25 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="2.6" stroke-linejoin="round"/>
+            <circle cx="38" cy="31" r="6.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
+            <circle cx="49" cy="32" r="6.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5"/>
+            <circle cx="39.5" cy="31.5" r="2.2" fill="#0F172A"/>
+            <circle cx="50.5" cy="32.5" r="2.2" fill="#0F172A"/>
+            <line x1="28" y1="33" x2="57" y2="42" stroke="#0F172A" stroke-width="6.5" stroke-linecap="round"/>
+            <path d="M33 70 L31 76 L39 76 M47 70 L46 76 L54 76" stroke="#0F172A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
+      },
+      hoot: {
+        id: 'hoot',
+        name: 'Hoot',
+        title: 'Stern Lavender Horned Owl',
+        unlockLevel: 10,
+        maxHearts: 4,
+        maxJumps: 3,
+        speedMult: 1.18,
+        jumpForce: -730,
+        gravity: 1680,
+        badgeColor: 'bg-indigo-200 text-indigo-950',
+        abilityName: 'Triple Flap + Sonic Hoot Blast',
+        description: 'A stern lavender horned owl with slate-gray ear tufts, wing, and talons, fierce yellow eyes, and a dark hooked beak!',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <path d="M25 22 L19 9 L34 17 Z" fill="#525B6B" stroke="#1E1B2E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M51 20 L58 8 L45 16 Z" fill="#525B6B" stroke="#1E1B2E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M24 22 C24 14, 54 14, 55 24 C56 31, 59 35, 57 42 C56 54, 52 63, 44 67 L22 65 C18 62, 16 56, 20 50 L24 22 Z" fill="#9E9AD6" stroke="#1E1B2E" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M24 27 C15 36, 12 52, 18 63 C25 65, 31 62, 32 54 L24 27 Z" fill="#5A6272" stroke="#1E1B2E" stroke-width="2.6" stroke-linejoin="round"/>
+            <path d="M36 44 C34 46, 34 49, 36 51 M42 44 C40 46, 40 49, 42 51 M48 44 C46 46, 46 49, 48 51 M39 53 C37 55, 37 58, 39 60 M45 53 C43 55, 43 58, 45 60" stroke="#1E1B2E" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <ellipse cx="38" cy="29" rx="6.5" ry="6" fill="#F3EA5F" stroke="#1E1B2E" stroke-width="2.2"/>
+            <ellipse cx="49" cy="29" rx="6.5" ry="6" fill="#F3EA5F" stroke="#1E1B2E" stroke-width="2.2"/>
+            <circle cx="39.5" cy="30" r="2.7" fill="#1E1B2E"/>
+            <circle cx="48" cy="30" r="2.7" fill="#1E1B2E"/>
+            <path d="M31 22 L44 26 L56 22" stroke="#1E1B2E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M41 33 C41 30, 47 30, 47 34 C47 38, 43 40, 42 37 Z" fill="#464E5E" stroke="#1E1B2E" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M34 65 L33 73 L28 74 M34 73 L33 75 M34 73 L37 75 M45 66 L45 72 L41 73 M45 72 L45 74 M45 72 L49 74" stroke="#3B4252" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>`
+      },
+      rosie: {
+        id: 'rosie',
+        name: 'Rosie',
+        title: 'Starry-Eyed Female Duck',
+        unlockLevel: 13,
+        maxHearts: 4,
+        maxJumps: 3,
+        speedMult: 1.22,
+        jumpForce: -735,
+        gravity: 1660,
+        badgeColor: 'bg-rose-200 text-rose-950',
+        abilityName: 'Big Red Starry Eyes (Scares Chirp!)',
+        description: 'A nimble female duck with big red starry eyes and rosy cheeks that scare Chirp away in stars!',
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <ellipse cx="39" cy="45" rx="23" ry="23" fill="#FFF1F2" stroke="#E11D48" stroke-width="3.2"/>
+            <ellipse cx="35" cy="48" rx="10" ry="7" fill="#FECDD3" stroke="#E11D48" stroke-width="2"/>
+            <circle cx="49" cy="35" r="9.5" fill="#FFE4E6" stroke="#E11D48" stroke-width="2.5"/>
+            <polygon points="49,27.5 51.4,32.5 57,33.2 52.9,37.1 53.9,42.6 49,40 44.1,42.6 45.1,37.1 41,33.2 46.6,32.5" fill="#EF4444" stroke="#991B1B" stroke-width="1.2"/>
+            <circle cx="51.5" cy="32.5" r="1.6" fill="#FFFFFF"/>
+            <ellipse cx="44" cy="45" rx="5.5" ry="3.5" fill="#FB7185" opacity="0.65"/>
+            <path d="M58 41 Q72 40 72 44.5 Q72 49 58 48 Z" fill="#FB923C" stroke="#C2410C" stroke-width="2.3" stroke-linejoin="round"/>
+            <path d="M32 67 L30 74 L37 74 M46 67 L45 74 L52 74" stroke="#E11D48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
+      }
+    };
+
+    const ENEMY_CHIRP = {
+      name: 'Chirp',
+      title: 'Swooping Robin Rival',
+      description: 'A feisty red-breasted robin who patrols high, mid, and low flight paths and dives as levels rise—or flees when Quack triggers an earthquake or Rosie flashes her red starry eyes!',
+      svg: `
+        <svg viewBox="0 0 80 80" class="w-full h-full">
+          <path d="M52 44 L72 36 L68 48 Z" fill="#78350F" stroke="#451A03" stroke-width="2.5" stroke-linejoin="round"/>
+          <ellipse cx="40" cy="43" rx="22" ry="17" fill="#92400E" stroke="#451A03" stroke-width="3"/>
+          <path d="M20 43 C20 55, 36 60, 48 52 C42 42, 28 38, 20 43 Z" fill="#F97316"/>
+          <path d="M36 36 Q48 22 58 35 Q46 42 36 36 Z" fill="#78350F" stroke="#451A03" stroke-width="2.5"/>
+          <circle cx="28" cy="37" r="3.8" fill="#0F172A"/>
+          <circle cx="27" cy="35.8" r="1.3" fill="#FFFFFF"/>
+          <path d="M24 31 L33 34" stroke="#451A03" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="19,39 7,43 19,46" fill="#FACC15" stroke="#A16207" stroke-width="2" stroke-linejoin="round"/>
+        </svg>`
+    };
+
+    const STORAGE_KEY = 'rush_for_ducks_save_v2';
+    let saveData = {
+      highestLevel: 1,
+      highScore: 0,
+      selectedHero: 'peep',
+      unlockedHeroes: ['peep']
+    };
+
+    function syncUnlocksWithLevel(lvl) {
+      if (!saveData.unlockedHeroes.includes('peep')) saveData.unlockedHeroes.push('peep');
+      if (lvl >= 3 && !saveData.unlockedHeroes.includes('quack')) saveData.unlockedHeroes.push('quack');
+      if (lvl >= 10 && !saveData.unlockedHeroes.includes('hoot')) saveData.unlockedHeroes.push('hoot');
+      if (lvl >= 13 && !saveData.unlockedHeroes.includes('rosie')) saveData.unlockedHeroes.push('rosie');
+    }
+
+    function loadSave() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          saveData = {
+            highestLevel: Math.max(1, Number(parsed.highestLevel) || 1),
+            highScore: Math.max(0, Number(parsed.highScore) || 0),
+            selectedHero: HEROES[parsed.selectedHero] ? parsed.selectedHero : 'peep',
+            unlockedHeroes: Array.isArray(parsed.unlockedHeroes) ? parsed.unlockedHeroes : ['peep']
+          };
+        }
+      } catch (e) {
+        // Ignore storage errors
+      }
+      syncUnlocksWithLevel(saveData.highestLevel);
+      if (!saveData.unlockedHeroes.includes(saveData.selectedHero)) {
+        saveData.selectedHero = 'peep';
+      }
+    }
+
+    function persistSave() {
+      syncUnlocksWithLevel(saveData.highestLevel);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+      } catch (e) {
+        // Ignore storage errors
+      }
+      updateHeaderBadges();
+    }
+
+    loadSave();
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const frameEl = document.getElementById('game-frame');
+
+    let viewW = 960;
+    let viewH = 540;
+    let groundY = 435;
+
+    function resizeCanvas() {
+      const rect = frameEl.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      viewW = Math.max(320, rect.width);
+      viewH = Math.max(240, rect.height);
+      canvas.width = Math.floor(viewW * dpr);
+      canvas.height = Math.floor(viewH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      groundY = Math.round(viewH * 0.8);
+      if (player) {
+        player.baseGroundY = groundY;
+        if (player.onGround) {
+          player.y = groundY;
+        }
+      }
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    let gameState = 'START';
+    let score = 0;
+    let xp = 0;
+    let xpToNext = 120;
+    let level = 1;
+    let baseSpeed = 310;
+    let worldTime = 0;
+    let screenShake = 0;
+    let earthquakeTimer = 0;
+    let newlyUnlockedHeroId = null;
+
+    let jumpHeld = false;
+
+    let player = null;
+    let obstacles = [];
+    let collectibles = [];
+    let particles = [];
+    let shockwaves = [];
+    let floatingTexts = [];
+    let clouds = [];
+    let hills = [];
+
+    let obstacleTimer = 1.2;
+    let collectibleTimer = 0.8;
+
+    function createScenery() {
+      clouds = Array.from({ length: 6 }, (_, i) => ({
+        x: (i / 6) * viewW + Math.random() * 120,
+        y: 45 + Math.random() * (groundY * 0.35),
+        scale: 0.65 + Math.random() * 0.65,
+        speed: 18 + Math.random() * 22
+      }));
+
+      hills = Array.from({ length: 5 }, (_, i) => ({
+        x: i * 260,
+        width: 340 + Math.random() * 90,
+        height: 75 + Math.random() * 55,
+        color: i % 2 === 0 ? '#4ade80' : '#22c55e'
+      }));
+    }
+
+    function createPlayer(heroId) {
+      const spec = HEROES[heroId] || HEROES.peep;
+      return {
+        id: spec.id,
+        x: Math.min(165, Math.max(85, viewW * 0.17)),
+        y: groundY,
+        baseGroundY: groundY,
+        vy: 0,
+        width: 44,
+        height: 52,
+        onGround: true,
+        jumpsUsed: 0,
+        ducking: false,
+        diving: false,
+        invulnTimer: 0,
+        hearts: spec.maxHearts,
+        maxHearts: spec.maxHearts,
+        specialCharge: 100,
+        starryTimer: 0,
+        animPhase: 0,
+        squashX: 1,
+        squashY: 1
+      };
+    }
+
+    function getLevelXpRequirement(lvl) {
+      return Math.round(110 + (lvl - 1) * 45);
+    }
+
+    function getNextUnlockHint(lvl) {
+      if (lvl < 3) return `Next: Quack at Lv.3 (${3 - lvl} lv${3 - lvl === 1 ? '' : 's'})`;
+      if (lvl < 10) return `Next: Hoot at Lv.10 (${10 - lvl} lv${10 - lvl === 1 ? '' : 's'})`;
+      if (lvl < 13) return `Next: Rosie at Lv.13 (${13 - lvl} lv${13 - lvl === 1 ? '' : 's'})`;
+      return 'All 4 Heroes Unlocked!';
+    }
+
+    let bannerTimeout = null;
+
+    function showBanner(badge, title, subtitle, unlockHeroId = null) {
+      const bannerEl = document.getElementById('banner-toast');
+      const badgeEl = document.getElementById('banner-badge');
+      const titleEl = document.getElementById('banner-title');
+      const subEl = document.getElementById('banner-subtitle');
+      const actionWrap = document.getElementById('banner-action-wrap');
+
+      newlyUnlockedHeroId = unlockHeroId;
+      badgeEl.textContent = badge;
+      titleEl.textContent = title;
+      subEl.textContent = subtitle;
+
+      if (unlockHeroId && HEROES[unlockHeroId]) {
+        actionWrap.classList.remove('hidden');
+        document.getElementById('banner-switch-btn').textContent = `Switch to ${HEROES[unlockHeroId].name} Now!`;
+      } else {
+        actionWrap.classList.add('hidden');
+      }
+
+      bannerEl.classList.remove('hidden');
+      if (bannerTimeout) clearTimeout(bannerTimeout);
+      bannerTimeout = setTimeout(() => {
+        bannerEl.classList.add('hidden');
+      }, unlockHeroId ? 4500 : 2400);
+    }
+
+    function updateHeaderBadges() {
+      document.getElementById('header-max-level').textContent = saveData.highestLevel;
+    }
+
+    function updateHud() {
+      if (!player) return;
+      const spec = HEROES[player.id];
+      document.getElementById('hud-hero-name').textContent = spec.name;
+      document.getElementById('hud-hero-avatar').innerHTML = spec.svg;
+      document.getElementById('hud-hearts').textContent =
+        '❤️'.repeat(Math.max(0, player.hearts)) + '🖤'.repeat(Math.max(0, player.maxHearts - player.hearts));
+
+      document.getElementById('hud-level').textContent = level;
+      document.getElementById('hud-next-unlock').textContent = getNextUnlockHint(level);
+      const pct = Math.max(0, Math.min(100, (xp / xpToNext) * 100));
+      document.getElementById('hud-xp-bar').style.width = `${pct}%`;
+      document.getElementById('hud-score').textContent = Math.floor(score);
+
+      const specialWrap = document.getElementById('hud-special-power');
+      if (player.id === 'hoot' || player.id === 'rosie') {
+        specialWrap.classList.remove('hidden');
+        document.getElementById('hud-special-label').textContent =
+          player.id === 'hoot' ? '🦉 Sonic Hoot:' : '✨ Red Star Gaze:';
+        document.getElementById('hud-special-bar').style.width = `${Math.round(player.specialCharge)}%`;
+      } else {
+        specialWrap.classList.add('hidden');
+      }
+    }
+
+    function renderStartHeroCards() {
+      const grid = document.getElementById('start-hero-cards');
+      grid.innerHTML = '';
+
+      Object.values(HEROES).forEach(hero => {
+        const unlocked = saveData.unlockedHeroes.includes(hero.id);
+        const selected = saveData.selectedHero === hero.id && unlocked;
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.style.touchAction = 'manipulation';
+        card.className = `rounded-xl sm:rounded-2xl p-2 sm:p-3 border-2 text-left transition flex flex-col justify-between ${
+          selected
+            ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-300 shadow-md'
+            : unlocked
+              ? 'bg-white border-sky-200 hover:border-sky-400 shadow-sm'
+              : 'bg-slate-100 border-slate-200 opacity-75 cursor-not-allowed'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-slate-100 border border-slate-200 p-0.5 sm:p-1 shrink-0 flex items-center justify-center">
+              ${hero.svg}
+            </div>
+            <div class="min-w-0">
+              <div class="font-display font-bold text-slate-900 text-sm sm:text-base leading-tight flex items-center gap-1">
+                <span>${hero.name}</span>
+                ${selected ? '<span class="text-[9px] sm:text-[10px] bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded-full">READY</span>' : ''}
+              </div>
+              <div class="text-[10px] sm:text-[11px] font-extrabold ${unlocked ? 'text-emerald-700' : 'text-rose-600'}">
+                ${unlocked ? `Unlocked • ${hero.maxHearts} ❤️` : `🔒 Lv.${hero.unlockLevel}`}
+              </div>
+            </div>
+          </div>
+          <p class="text-[10px] sm:text-[11px] text-slate-600 font-semibold leading-tight line-clamp-2">${hero.abilityName}</p>
+        `;
+
+        if (unlocked) {
+          card.addEventListener('click', () => {
+            sfx.playTone(520, 680, 0.08, 'sine', 0.12);
+            saveData.selectedHero = hero.id;
+            persistSave();
+            renderStartHeroCards();
+          });
+        }
+
+        grid.appendChild(card);
+      });
+    }
+
+    function renderPauseSwitcher() {
+      const wrap = document.getElementById('pause-hero-switcher');
+      wrap.innerHTML = '';
+
+      Object.values(HEROES).forEach(hero => {
+        const unlocked = saveData.unlockedHeroes.includes(hero.id);
+        const active = player && player.id === hero.id;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = !unlocked;
+        btn.style.touchAction = 'manipulation';
+        btn.className = `p-2 rounded-2xl border-2 flex flex-col items-center text-center transition ${
+          active
+            ? 'bg-purple-100 border-purple-500 ring-2 ring-purple-300'
+            : unlocked
+              ? 'bg-slate-50 border-slate-200 hover:border-purple-400'
+              : 'bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed'
+        }`;
+        btn.innerHTML = `
+          <div class="w-10 h-10 mb-1">${hero.svg}</div>
+          <div class="font-display font-bold text-xs text-slate-900">${hero.name}</div>
+          <div class="text-[10px] font-bold ${unlocked ? 'text-purple-700' : 'text-slate-500'}">
+            ${unlocked ? (active ? 'Active' : 'Select') : `Lv.${hero.unlockLevel}`}
+          </div>
+        `;
+
+        if (unlocked) {
+          btn.addEventListener('click', () => {
+            switchActiveHero(hero.id, true);
+            renderPauseSwitcher();
+          });
+        }
+
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderRosterModal() {
+      const list = document.getElementById('roster-list');
+      list.innerHTML = '';
+
+      Object.values(HEROES).forEach(hero => {
+        const unlocked = saveData.unlockedHeroes.includes(hero.id);
+        const el = document.createElement('div');
+        el.className = `bg-white rounded-2xl p-3 border-2 ${unlocked ? 'border-purple-200' : 'border-slate-200 opacity-80'} flex gap-3 items-start shadow-sm`;
+        el.innerHTML = `
+          <div class="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 p-1 shrink-0">
+            ${hero.svg}
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-1">
+              <h3 class="font-display font-bold text-base text-slate-900">${hero.name}</h3>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${unlocked ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}">
+                ${unlocked ? 'UNLOCKED' : `LV. ${hero.unlockLevel}`}
+              </span>
+            </div>
+            <div class="text-[11px] font-bold text-purple-700 mb-1">${hero.abilityName}</div>
+            <p class="text-xs text-slate-600 font-semibold leading-snug">${hero.description}</p>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+
+      const enemyCard = document.createElement('div');
+      enemyCard.className = 'sm:col-span-2 bg-rose-50/90 rounded-2xl p-3 border-2 border-rose-200 flex gap-3 items-start shadow-sm';
+      enemyCard.innerHTML = `
+        <div class="w-14 h-14 rounded-2xl bg-white border border-rose-200 p-1 shrink-0">
+          ${ENEMY_CHIRP.svg}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-1">
+            <h3 class="font-display font-bold text-base text-rose-950">${ENEMY_CHIRP.name} (Enemy Robin)</h3>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900">HAZARD</span>
+          </div>
+          <div class="text-[11px] font-bold text-rose-700 mb-1">${ENEMY_CHIRP.title}</div>
+          <p class="text-xs text-rose-900/85 font-semibold leading-snug">${ENEMY_CHIRP.description}</p>
+        </div>
+      `;
+      list.appendChild(enemyCard);
+    }
+
+    function switchActiveHero(newId, keepHearts = true) {
+      if (!HEROES[newId] || !saveData.unlockedHeroes.includes(newId)) return;
+      const prevHearts = player ? player.hearts : HEROES[newId].maxHearts;
+      const prevX = player ? player.x : Math.min(165, Math.max(85, viewW * 0.17));
+      const prevY = player ? player.y : groundY;
+      const prevVy = player ? player.vy : 0;
+      const prevOnGround = player ? player.onGround : true;
+
+      saveData.selectedHero = newId;
+      persistSave();
+
+      player = createPlayer(newId);
+      player.x = prevX;
+      player.y = prevY;
+      player.vy = prevVy;
+      player.onGround = prevOnGround;
+      player.hearts = keepHearts
+        ? Math.min(player.maxHearts, Math.max(1, prevHearts))
+        : player.maxHearts;
+      player.invulnTimer = 0.6;
+      player.squashX = 1.2;
+      player.squashY = 0.82;
+
+      spawnFloatingText(player.x, player.y - 65, `${HEROES[newId].name}!`, '#fde047');
+      updateHud();
+    }
+
+    function triggerJump() {
+      if (gameState !== 'PLAYING' || !player) return;
+      const spec = HEROES[player.id];
+
+      if (player.jumpsUsed < spec.maxJumps) {
+        player.diving = false;
+        player.ducking = false;
+        player.vy = spec.jumpForce;
+        player.onGround = false;
+        player.jumpsUsed += 1;
+        player.squashX = 0.8;
+        player.squashY = 1.24;
+
+        sfx.playJump(player.id, player.jumpsUsed);
+        spawnParticles(player.x, player.y, '#fef08a', 8, 130);
+      }
+    }
+
+    function setDucking(active) {
+      if (!player) return;
+      if (active) {
+        if (!player.onGround && !player.diving) {
+          player.diving = true;
+          player.ducking = true;
+          player.vy = Math.max(player.vy + 520, 780);
+          player.squashX = 0.78;
+          player.squashY = 1.25;
+          sfx.playTone(420, 190, 0.12, 'triangle', 0.13);
+        } else if (player.onGround) {
+          player.ducking = true;
+        }
+      } else {
+        player.ducking = false;
+        player.diving = false;
+      }
+    }
+
+    function triggerGroundSmashEarthquake() {
+      if (!player) return;
+      const isQuack = player.id === 'quack';
+      const smashRadius = isQuack ? 250 : 165;
+      const quakeDuration = isQuack ? 1.15 : 0.65;
+
+      player.diving = false;
+      player.ducking = false;
+      player.onGround = true;
+      player.y = groundY;
+      player.vy = 0;
+      player.jumpsUsed = 0;
+      player.squashX = isQuack ? 1.42 : 1.28;
+      player.squashY = isQuack ? 0.64 : 0.75;
+
+      earthquakeTimer = Math.max(earthquakeTimer, quakeDuration);
+      screenShake = Math.max(screenShake, isQuack ? 16 : 9);
+
+      sfx.playTone(150, 48, 0.34, 'sawtooth', isQuack ? 0.22 : 0.14);
+      sfx.playTone(95, 38, 0.42, 'triangle', isQuack ? 0.2 : 0.12, 0.05);
+
+      shockwaves.push({
+        x: player.x + 12,
+        y: groundY - 4,
+        radius: 16,
+        maxRadius: smashRadius,
+        color: isQuack ? '#c084fc' : '#fde047',
+        alpha: 0.95
+      });
+
+      spawnParticles(player.x + 10, groundY, isQuack ? '#a855f7' : '#86efac', isQuack ? 22 : 12, 240);
+      spawnParticles(player.x + 10, groundY, '#fef08a', isQuack ? 12 : 6, 190);
+      spawnFloatingText(
+        player.x + 18,
+        groundY - 58,
+        isQuack ? 'QUACK EARTHQUAKE!' : 'GROUND SMASH!',
+        isQuack ? '#e9d5ff' : '#fef08a'
+      );
+
+      obstacles.forEach(obs => {
+        if (obs.kind === 'chirp' && !obs.scared) {
+          const dist = Math.hypot(obs.x - player.x, obs.y - groundY);
+          if (dist <= smashRadius + obs.r) {
+            obs.scared = true;
+            obs.vx = 460;
+            obs.vy = -260;
+            score += 35;
+            addXp(25);
+            sfx.playStunEnemy();
+            spawnFloatingText(obs.x, obs.y - 24, 'QUAKE +35', '#facc15');
+          }
+        }
+      });
+    }
+
+    function triggerSpecialAbility() {
+      if (gameState !== 'PLAYING' || !player) return;
+
+      if (player.id === 'hoot') {
+        if (player.specialCharge < 100) return;
+        player.specialCharge = 0;
+        screenShake = 11;
+        sfx.playHootBlast();
+
+        shockwaves.push({
+          x: player.x + 24,
+          y: player.y - 24,
+          radius: 14,
+          maxRadius: 310,
+          color: '#a5b4fc',
+          alpha: 0.95
+        });
+
+        spawnParticles(player.x + 25, player.y - 24, '#c7d2fe', 18, 220);
+        spawnFloatingText(player.x + 20, player.y - 65, 'SONIC HOOT!', '#e0e7ff');
+
+        obstacles.forEach(obs => {
+          if (obs.kind === 'chirp' && obs.x > player.x - 40 && obs.x < player.x + 420) {
+            obs.scared = true;
+            obs.vx = 520;
+            obs.vy = -240;
+            score += 40;
+            addXp(25);
+          }
+        });
+      } else if (player.id === 'rosie') {
+        if (player.specialCharge < 100) return;
+        player.specialCharge = 0;
+        player.starryTimer = 2.4;
+        screenShake = 7;
+        sfx.playRosieStarryGaze();
+
+        shockwaves.push({
+          x: player.x + 18,
+          y: player.y - 28,
+          radius: 12,
+          maxRadius: 270,
+          color: '#fb7185',
+          alpha: 0.9
+        });
+
+        spawnParticles(player.x + 20, player.y - 28, '#fda4af', 18, 210);
+        spawnFloatingText(player.x + 20, player.y - 65, 'RED STAR GAZE!', '#fecdd3');
+
+        obstacles.forEach(obs => {
+          if (obs.kind === 'chirp' && !obs.scared) {
+            obs.scared = true;
+            obs.vx = 480;
+            obs.vy = -290;
+            score += 45;
+            addXp(30);
+          }
+        });
+      } else {
+        triggerJump();
+      }
+      updateHud();
+    }
+
+    function addXp(amount) {
+      xp += amount;
+      while (xp >= xpToNext) {
+        xp -= xpToNext;
+        level += 1;
+        xpToNext = getLevelXpRequirement(level);
+
+        const prevUnlocked = new Set(saveData.unlockedHeroes);
+        if (level > saveData.highestLevel) {
+          saveData.highestLevel = level;
+        }
+        syncUnlocksWithLevel(level);
+        persistSave();
+
+        let newlyUnlocked = null;
+        Object.keys(HEROES).forEach(id => {
+          if (!prevUnlocked.has(id) && saveData.unlockedHeroes.includes(id)) {
+            newlyUnlocked = id;
+          }
+        });
+
+        if (newlyUnlocked) {
+          const h = HEROES[newlyUnlocked];
+          sfx.playLevelUp(true);
+          showBanner(
+            'NEW HERO UNLOCKED!',
+            `Level ${level} • Meet ${h.name}!`,
+            `${h.title} — ${h.abilityName}`,
+            newlyUnlocked
+          );
+        } else {
+          sfx.playLevelUp(false);
+          showBanner(
+            'LEVEL UP!',
+            `Reached Level ${level}!`,
+            'Pace quickens — stay sharp against Chirp!',
+            null
+          );
+        }
+      }
+    }
+
+    function damagePlayer() {
+      if (!player || player.invulnTimer > 0) return;
+
+      if (player.diving) {
+        triggerGroundSmashEarthquake();
+        return;
+      }
+
+      player.hearts -= 1;
+      player.invulnTimer = 1.25;
+      player.squashX = 1.25;
+      player.squashY = 0.75;
+      screenShake = 12;
+
+      sfx.playHurt();
+      spawnParticles(player.x, player.y - 24, '#fb7185', 14, 180);
+      spawnFloatingText(player.x, player.y - 55, '-1 ❤️', '#fda4af');
+      updateHud();
+
+      if (player.hearts <= 0) {
+        handleGameOver();
+      }
+    }
+
+    function handleGameOver() {
+      gameState = 'GAMEOVER';
+      const finalScore = Math.floor(score);
+      if (finalScore > saveData.highScore) {
+        saveData.highScore = finalScore;
+      }
+      if (level > saveData.highestLevel) {
+        saveData.highestLevel = level;
+      }
+      persistSave();
+
+      document.getElementById('hud-overlay').classList.add('hidden');
+      document.getElementById('screen-gameover').classList.remove('hidden');
+      document.getElementById('go-score').textContent = finalScore;
+      document.getElementById('go-best').textContent = saveData.highScore;
+      document.getElementById('go-level').textContent = level;
+      document.getElementById('go-unlock-hint').textContent = getNextUnlockHint(level);
+    }
+
+    let lastStartTime = 0;
+    function startNewGame(e) {
+      if (e && e.cancelable) {
+        e.preventDefault();
+      }
+      const now = Date.now();
+      if (now - lastStartTime < 250) return;
+      lastStartTime = now;
+
+      resizeCanvas();
+
+      score = 0;
+      xp = 0;
+      xpToNext = getLevelXpRequirement(1);
+      level = 1;
+      worldTime = 0;
+      screenShake = 0;
+      earthquakeTimer = 0;
+      newlyUnlockedHeroId = null;
+
+      obstacles = [];
+      collectibles = [];
+      particles = [];
+      shockwaves = [];
+      floatingTexts = [];
+      obstacleTimer = 1.05;
+      collectibleTimer = 0.65;
+
+      if (!saveData.unlockedHeroes.includes(saveData.selectedHero)) {
+        saveData.selectedHero = 'peep';
+      }
+      player = createPlayer(saveData.selectedHero);
+
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('screen-pause').classList.add('hidden');
+      document.getElementById('screen-gameover').classList.add('hidden');
+      document.getElementById('banner-toast').classList.add('hidden');
+      document.getElementById('hud-overlay').classList.remove('hidden');
+
+      gameState = 'PLAYING';
+      updateHud();
+
+      try {
+        sfx.init();
+      } catch (err) {
+        // Ignore audio init issues
+      }
+    }
+
+    function spawnObstacle() {
+      const currentSpeed = baseSpeed * (1 + (level - 1) * 0.065);
+      const roll = Math.random();
+
+      if (roll < 0.45) {
+        const laneRoll = Math.random();
+        let altitudeOffset = 38;
+        if (laneRoll < 0.34) {
+          altitudeOffset = 34;
+        } else if (laneRoll < 0.7) {
+          altitudeOffset = 82;
+        } else {
+          altitudeOffset = 128;
+        }
+
+        obstacles.push({
+          kind: 'chirp',
+          x: viewW + 40,
+          y: groundY - altitudeOffset,
+          baseY: groundY - altitudeOffset,
+          r: 21,
+          vx: -(currentSpeed * 1.12),
+          vy: 0,
+          wingPhase: Math.random() * Math.PI * 2,
+          swoopPhase: Math.random() * Math.PI * 2,
+          scared: false
+        });
+      } else {
+        obstacles.push({
+          kind: 'log',
+          x: viewW + 35,
+          y: groundY,
+          w: 36 + Math.random() * 14,
+          h: 34 + Math.random() * 14,
+          vx: -currentSpeed
+        });
+      }
+    }
+
+    function spawnCollectible() {
+      const isFeather = Math.random() < 0.28;
+      const heightOffset = 35 + Math.random() * 115;
+      collectibles.push({
+        kind: isFeather ? 'feather' : 'seed',
+        x: viewW + 30,
+        y: groundY - heightOffset,
+        baseY: groundY - heightOffset,
+        r: isFeather ? 16 : 12,
+        phase: Math.random() * Math.PI * 2,
+        value: isFeather ? 30 : 15,
+        xpValue: isFeather ? 25 : 12
+      });
+    }
+
+    function spawnParticles(x, y, color, count, speedMax) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 35 + Math.random() * speedMax;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 60,
+          size: 3 + Math.random() * 5,
+          color,
+          life: 0.45 + Math.random() * 0.35,
+          maxLife: 0.8
+        });
+      }
+    }
+
+    function spawnFloatingText(x, y, text, color) {
+      floatingTexts.push({
+        x,
+        y,
+        text,
+        color,
+        life: 0.85,
+        maxLife: 0.85
+      });
+    }
+
+    function update(dt) {
+      worldTime += dt;
+
+      if (screenShake > 0) {
+        screenShake = Math.max(0, screenShake - dt * 36);
+      }
+      if (earthquakeTimer > 0) {
+        earthquakeTimer = Math.max(0, earthquakeTimer - dt);
+      }
+
+      clouds.forEach(c => {
+        const mult = gameState === 'PLAYING' ? 1 + (level - 1) * 0.05 : 0.4;
+        c.x -= c.speed * mult * dt;
+        if (c.x < -120) c.x = viewW + 90;
+      });
+
+      if (gameState !== 'PLAYING' || !player) return;
+
+      const spec = HEROES[player.id];
+      const worldScrollSpeed = baseSpeed * (1 + (level - 1) * 0.065) * spec.speedMult;
+
+      hills.forEach(h => {
+        h.x -= worldScrollSpeed * 0.25 * dt;
+        if (h.x + h.width < -40) {
+          h.x += hills.length * 255;
+        }
+      });
+
+      score += dt * 18 * (1 + (level - 1) * 0.08);
+      addXp(dt * 10);
+
+      if (player.id === 'hoot' || player.id === 'rosie') {
+        player.specialCharge = Math.min(100, player.specialCharge + dt * 16);
+      }
+      if (player.starryTimer > 0) {
+        player.starryTimer = Math.max(0, player.starryTimer - dt);
+      }
+      if (player.invulnTimer > 0) {
+        player.invulnTimer = Math.max(0, player.invulnTimer - dt);
+      }
+
+      let grav = spec.gravity;
+      if (player.diving) {
+        grav = spec.gravity * 2.4;
+      } else if (player.id === 'quack' && !player.onGround && player.vy > 0 && jumpHeld) {
+        grav = spec.gravity * 0.34;
+        player.vy = Math.min(player.vy, 130);
+      }
+
+      player.vy += grav * dt;
+      player.y += player.vy * dt;
+      player.animPhase += dt * 12;
+
+      player.squashX += (1 - player.squashX) * Math.min(1, dt * 14);
+      player.squashY += (1 - player.squashY) * Math.min(1, dt * 14);
+
+      if (player.y >= groundY) {
+        const wasDiving = player.diving;
+        player.y = groundY;
+        player.vy = 0;
+        player.jumpsUsed = 0;
+
+        if (!player.onGround) {
+          player.onGround = true;
+          if (wasDiving) {
+            triggerGroundSmashEarthquake();
+          } else {
+            player.squashX = 1.18;
+            player.squashY = 0.84;
+          }
+        }
+      }
+
+      obstacleTimer -= dt;
+      if (obstacleTimer <= 0) {
+        spawnObstacle();
+        const minGap = Math.max(0.72, 1.48 - (level - 1) * 0.05);
+        obstacleTimer = minGap + Math.random() * 0.65;
+      }
+
+      collectibleTimer -= dt;
+      if (collectibleTimer <= 0) {
+        spawnCollectible();
+        collectibleTimer = 0.75 + Math.random() * 0.7;
+      }
+
+      const pHalfW = player.ducking ? 22 : 17;
+      const pHeight = player.ducking ? 32 : 48;
+      const pTop = player.y - pHeight;
+      const pBottom = player.y;
+      const pLeft = player.x - pHalfW;
+      const pRight = player.x + pHalfW;
+
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        if (obs.kind === 'chirp') {
+          if (obs.scared) {
+            obs.x += obs.vx * dt;
+            obs.y += obs.vy * dt;
+            obs.vy += 420 * dt;
+          } else {
+            obs.x += obs.vx * dt;
+            obs.swoopPhase += dt * 3.6;
+            const swoopAmp = Math.min(34, 12 + level * 2);
+            obs.y = obs.baseY + Math.sin(obs.swoopPhase) * swoopAmp;
+          }
+          obs.wingPhase += dt * 18;
+
+          if (!obs.scared && player.id === 'rosie' && player.starryTimer > 0) {
+            const d = Math.hypot(obs.x - player.x, obs.y - (player.y - 24));
+            if (d < 220) {
+              obs.scared = true;
+              obs.vx = 460;
+              obs.vy = -260;
+              score += 35;
+              spawnFloatingText(obs.x, obs.y - 20, 'STARRIED!', '#fda4af');
+            }
+          }
+
+          if (!obs.scared) {
+            const closestX = Math.max(pLeft, Math.min(obs.x, pRight));
+            const closestY = Math.max(pTop, Math.min(obs.y, pBottom));
+            const dx = obs.x - closestX;
+            const dy = obs.y - closestY;
+            if (dx * dx + dy * dy < obs.r * obs.r) {
+              damagePlayer();
+            }
+          }
+        } else {
+          obs.x += obs.vx * dt;
+          const oLeft = obs.x - obs.w * 0.45;
+          const oRight = obs.x + obs.w * 0.45;
+          const oTop = obs.y - obs.h;
+
+          if (pRight > oLeft && pLeft < oRight && pBottom > oTop && pTop < obs.y) {
+            damagePlayer();
+          }
+        }
+
+        if (obs.x < -120 || obs.x > viewW + 260 || obs.y > viewH + 120) {
+          obstacles.splice(i, 1);
+        }
+      }
+
+      for (let i = collectibles.length - 1; i >= 0; i--) {
+        const item = collectibles[i];
+        item.x -= worldScrollSpeed * 0.95 * dt;
+        item.phase += dt * 4.5;
+        item.y = item.baseY + Math.sin(item.phase) * 8;
+
+        const cx = Math.max(pLeft, Math.min(item.x, pRight));
+        const cy = Math.max(pTop, Math.min(item.y, pBottom));
+        const dx = item.x - cx;
+        const dy = item.y - cy;
+
+        if (dx * dx + dy * dy <= (item.r + 10) * (item.r + 10)) {
+          score += item.value;
+          addXp(item.xpValue);
+          sfx.playCollect(item.kind === 'feather');
+          spawnParticles(
+            item.x,
+            item.y,
+            item.kind === 'feather' ? '#fde047' : '#fb923c',
+            8,
+            120
+          );
+          spawnFloatingText(
+            item.x,
+            item.y - 14,
+            `+${item.value}`,
+            item.kind === 'feather' ? '#fef08a' : '#fed7aa'
+          );
+          collectibles.splice(i, 1);
+          continue;
+        }
+
+        if (item.x < -60) {
+          collectibles.splice(i, 1);
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.vy += 480 * dt;
+        pt.life -= dt;
+        if (pt.life <= 0) particles.splice(i, 1);
+      }
+
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.radius += dt * 620;
+        sw.alpha -= dt * 1.9;
+        if (sw.radius >= sw.maxRadius || sw.alpha <= 0) {
+          shockwaves.splice(i, 1);
+        }
+      }
+
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y -= dt * 48;
+        ft.life -= dt;
+        if (ft.life <= 0) floatingTexts.splice(i, 1);
+      }
+
+      updateHud();
+    }
+
+    function drawHeroOnCanvas(p) {
+      ctx.save();
+      const quakeOffsetX = earthquakeTimer > 0 ? Math.sin(worldTime * 65) * 4 : 0;
+      ctx.translate(p.x + quakeOffsetX, p.y);
+
+      if (p.invulnTimer > 0 && Math.floor(p.invulnTimer * 16) % 2 === 0) {
+        ctx.globalAlpha = 0.45;
+      }
+
+      let sx = p.squashX;
+      let sy = p.squashY;
+      if (p.ducking && !p.diving) {
+        sx = 1.24;
+        sy = 0.72;
+      }
+      ctx.scale(sx, sy);
+
+      const bob = p.onGround && !p.ducking ? Math.sin(p.animPhase) * 2.5 : 0;
+
+      if (p.id === 'peep') {
+        ctx.fillStyle = '#ef4444';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(-11, -43 + bob);
+        ctx.quadraticCurveTo(-12, -51 + bob, -5, -49 + bob);
+        ctx.quadraticCurveTo(-2, -56 + bob, 3, -50 + bob);
+        ctx.quadraticCurveTo(8, -53 + bob, 8, -45 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#fde047';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.arc(0, -25 + bob, 19.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.3;
+        ctx.beginPath();
+        ctx.ellipse(2, -39 + bob, 5.4, 7.5, -0.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.ellipse(10.5, -38 + bob, 5, 7, 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(2.6, -43 + bob, 2.1, 0, Math.PI * 2);
+        ctx.arc(11.1, -42 + bob, 2.1, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(10, -33 + bob);
+        ctx.lineTo(25, -39 + bob);
+        ctx.stroke();
+      } else if (p.id === 'quack') {
+        if (p.diving) {
+          ctx.rotate(0.26);
+        }
+        ctx.fillStyle = '#7c5ce6';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.ellipse(0, -25 + bob, 18, 23, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(-8, -46 + bob);
+        ctx.lineTo(-6, -53 + bob);
+        ctx.quadraticCurveTo(3, -56 + bob, 12, -53 + bob);
+        ctx.lineTo(14, -46 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.moveTo(-11, -48 + bob);
+        ctx.quadraticCurveTo(3, -43 + bob, 17, -48 + bob);
+        ctx.lineTo(15, -42 + bob);
+        ctx.quadraticCurveTo(3, -39 + bob, -9, -42 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(1, -35 + bob, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(10.5, -34 + bob, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(2.5, -34.5 + bob, 2, 0, Math.PI * 2);
+        ctx.arc(12, -33.5 + bob, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 5.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-7, -33 + bob);
+        ctx.lineTo(18, -26 + bob);
+        ctx.stroke();
+      } else if (p.id === 'hoot') {
+        ctx.fillStyle = '#525b6b';
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(-8, -43 + bob);
+        ctx.lineTo(-14, -55 + bob);
+        ctx.lineTo(-1, -47 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(11, -44 + bob);
+        ctx.lineTo(18, -55 + bob);
+        ctx.lineTo(6, -47 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#9e9ad6';
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 2.8;
+        ctx.beginPath();
+        ctx.moveTo(-10, -43 + bob);
+        ctx.quadraticCurveTo(3, -50 + bob, 14, -42 + bob);
+        ctx.quadraticCurveTo(18, -35 + bob, 16, -26 + bob);
+        ctx.quadraticCurveTo(15, -12 + bob, 8, -4 + bob);
+        ctx.lineTo(-12, -5 + bob);
+        ctx.quadraticCurveTo(-16, -12 + bob, -14, -25 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#5a6272';
+        ctx.beginPath();
+        ctx.moveTo(-10, -39 + bob);
+        ctx.quadraticCurveTo(-19, -28 + bob, -15, -8 + bob);
+        ctx.quadraticCurveTo(-8, -6 + bob, -6, -15 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 1.7;
+        ctx.lineCap = 'round';
+        [
+          [-1, -22], [4, -22], [9, -22],
+          [1.5, -14], [6.5, -14]
+        ].forEach(([fx, fy]) => {
+          ctx.beginPath();
+          ctx.arc(fx, fy + bob, 2.2, -0.7, 0.7);
+          ctx.stroke();
+        });
+
+        [-1, 8.5].forEach((ex, idx) => {
+          ctx.fillStyle = '#f3ea5f';
+          ctx.strokeStyle = '#1e1b2e';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(ex, -35 + bob, 5.2, 4.8, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#1e1b2e';
+          ctx.beginPath();
+          ctx.arc(ex + (idx === 0 ? 1.2 : -0.8), -34.2 + bob, 2.2, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.strokeStyle = '#1e1b2e';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(-7, -41 + bob);
+        ctx.lineTo(3.5, -38 + bob);
+        ctx.lineTo(14, -41 + bob);
+        ctx.stroke();
+
+        ctx.fillStyle = '#464e5e';
+        ctx.beginPath();
+        ctx.moveTo(1.5, -32 + bob);
+        ctx.quadraticCurveTo(6.5, -33 + bob, 6.5, -29 + bob);
+        ctx.quadraticCurveTo(6.5, -25 + bob, 2.5, -27 + bob);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (p.id === 'rosie') {
+        ctx.fillStyle = '#fff1f2';
+        ctx.strokeStyle = '#e11d48';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, -24 + bob, 19, 21, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(251, 113, 133, 0.65)';
+        ctx.beginPath();
+        ctx.ellipse(4, -20 + bob, 5, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffe4e6';
+        ctx.strokeStyle = '#e11d48';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(8, -31 + bob, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        for (let s = 0; s < 10; s++) {
+          const rad = s % 2 === 0 ? 5.2 : 2.2;
+          const ang = (s * Math.PI) / 5 - Math.PI / 2;
+          const px = 8 + Math.cos(ang) * rad;
+          const py = -31 + bob + Math.sin(ang) * rad;
+          if (s === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#fb923c';
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(20, -25 + bob, 8.5, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = (p.id === 'quack' || p.id === 'peep')
+        ? '#0f172a'
+        : p.id === 'hoot'
+          ? '#3b4252'
+          : '#ea580c';
+      ctx.lineWidth = p.id === 'peep' ? 3.2 : 2.8;
+      ctx.lineCap = 'round';
+      const stepOffset = p.onGround ? Math.sin(p.animPhase) * 4 : 2;
+      if (p.id === 'peep') {
+        ctx.beginPath();
+        ctx.moveTo(-6, -6);
+        ctx.lineTo(-6 + stepOffset * 0.5, 6);
+        ctx.lineTo(-10 + stepOffset * 0.5, 7);
+        ctx.moveTo(5, -6);
+        ctx.lineTo(5 - stepOffset * 0.5, 6);
+        ctx.lineTo(1 - stepOffset * 0.5, 7);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(-7, -3);
+        ctx.lineTo(-7 + stepOffset, 2);
+        ctx.moveTo(7, -3);
+        ctx.lineTo(7 - stepOffset, 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawChirpEnemy(obs) {
+      ctx.save();
+      ctx.translate(obs.x, obs.y);
+      if (obs.scared) {
+        ctx.rotate(-0.35);
+      }
+
+      ctx.fillStyle = '#92400e';
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 19, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.arc(-6, 3, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      const wingY = Math.sin(obs.wingPhase) * 8;
+      ctx.fillStyle = '#78350f';
+      ctx.beginPath();
+      ctx.ellipse(2, -4 + wingY * 0.4, 9, 5, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(-9, -4, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#facc15';
+      ctx.strokeStyle = '#a16207';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-17, -2);
+      ctx.lineTo(-27, 1);
+      ctx.lineTo(-17, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.save();
+
+      const activeShake = Math.max(screenShake, earthquakeTimer > 0 ? 11 : 0);
+      if (activeShake > 0) {
+        const sx = (Math.random() - 0.5) * activeShake * 1.4;
+        const sy = (Math.random() - 0.5) * activeShake * 1.4;
+        ctx.translate(sx, sy);
+      }
+
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+      skyGrad.addColorStop(0, '#38bdf8');
+      skyGrad.addColorStop(0.65, '#bae6fd');
+      skyGrad.addColorStop(1, '#dcfce7');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(-20, -20, viewW + 40, groundY + 30);
+
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(viewW - 95, 72, 34, 0, Math.PI * 2);
+      ctx.fill();
+
+      clouds.forEach(c => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 22 * c.scale, 0, Math.PI * 2);
+        ctx.arc(c.x + 18 * c.scale, c.y - 4 * c.scale, 26 * c.scale, 0, Math.PI * 2);
+        ctx.arc(c.x + 38 * c.scale, c.y + 2 * c.scale, 20 * c.scale, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      hills.forEach(h => {
+        ctx.fillStyle = h.color;
+        ctx.beginPath();
+        ctx.ellipse(h.x + h.width * 0.5, groundY + 6, h.width * 0.5, h.height, 0, Math.PI, Math.PI * 2);
+        ctx.fill();
+      });
+
+      const groundGrad = ctx.createLinearGradient(0, groundY, 0, viewH);
+      groundGrad.addColorStop(0, '#22c55e');
+      groundGrad.addColorStop(0.25, '#15803d');
+      groundGrad.addColorStop(1, '#14532d');
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(-20, groundY, viewW + 40, viewH - groundY + 30);
+
+      if (earthquakeTimer > 0) {
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 3;
+        for (let crackX = 40; crackX < viewW; crackX += 95) {
+          const jitter = Math.sin(worldTime * 50 + crackX) * 6;
+          ctx.beginPath();
+          ctx.moveTo(crackX, groundY + 2);
+          ctx.lineTo(crackX + 14 + jitter, groundY + 18);
+          ctx.lineTo(crackX - 8 + jitter, groundY + 36);
+          ctx.stroke();
+        }
+      }
+
+      shockwaves.forEach(sw => {
+        ctx.save();
+        ctx.strokeStyle = sw.color;
+        ctx.globalAlpha = Math.max(0, sw.alpha);
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, Math.PI, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      collectibles.forEach(item => {
+        ctx.save();
+        ctx.translate(item.x, item.y);
+        if (item.kind === 'feather') {
+          ctx.fillStyle = '#fde047';
+          ctx.strokeStyle = '#ca8a04';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 14, 7, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#f97316';
+          ctx.strokeStyle = '#9a3412';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 9, 6, 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+
+      obstacles.forEach(obs => {
+        if (obs.kind === 'chirp') {
+          drawChirpEnemy(obs);
+        } else {
+          ctx.save();
+          ctx.fillStyle = '#78350f';
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.roundRect(obs.x - obs.w * 0.45, obs.y - obs.h, obs.w * 0.9, obs.h, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#4ade80';
+          ctx.beginPath();
+          ctx.roundRect(obs.x - obs.w * 0.45, obs.y - obs.h, obs.w * 0.9, 9, 6);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      if (player) {
+        drawHeroOnCanvas(player);
+      }
+
+      particles.forEach(pt => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      floatingTexts.forEach(ft => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+        ctx.font = 'bold 16px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.lineWidth = 4;
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      });
+
+      ctx.restore();
+    }
+
+    let lastTimestamp = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastTimestamp) / 1000));
+      lastTimestamp = now;
+
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.repeat) return;
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        if (gameState === 'PLAYING') {
+          e.preventDefault();
+          jumpHeld = true;
+          triggerJump();
+        }
+      } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        if (gameState === 'PLAYING') {
+          e.preventDefault();
+          setDucking(true);
+        }
+      } else if (e.code === 'KeyE' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        if (gameState === 'PLAYING') {
+          e.preventDefault();
+          triggerSpecialAbility();
+        }
+      } else if (e.code === 'KeyC') {
+        if (gameState === 'PLAYING' && player && saveData.unlockedHeroes.length > 1) {
+          const idx = saveData.unlockedHeroes.indexOf(player.id);
+          const nextId = saveData.unlockedHeroes[(idx + 1) % saveData.unlockedHeroes.length];
+          switchActiveHero(nextId, true);
+        }
+      } else if (e.code === 'Escape' || e.code === 'KeyP') {
+        if (gameState === 'PLAYING') {
+          gameState = 'PAUSED';
+          renderPauseSwitcher();
+          document.getElementById('screen-pause').classList.remove('hidden');
+        } else if (gameState === 'PAUSED') {
+          gameState = 'PLAYING';
+          document.getElementById('screen-pause').classList.add('hidden');
+        }
+      }
+    });
+
+    window.addEventListener('keyup', e => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        jumpHeld = false;
+      } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        setDucking(false);
+      }
+    });
+
+    const jumpBtn = document.getElementById('touch-jump');
+    jumpBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      jumpHeld = true;
+      triggerJump();
+    });
+    window.addEventListener('pointerup', () => {
+      jumpHeld = false;
+      setDucking(false);
+    });
+
+    const duckBtn = document.getElementById('touch-duck');
+    duckBtn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      setDucking(true);
+    });
+    duckBtn.addEventListener('pointerup', () => setDucking(false));
+    duckBtn.addEventListener('pointerleave', () => setDucking(false));
+
+    document.getElementById('touch-special').addEventListener('pointerdown', e => {
+      e.preventDefault();
+      triggerSpecialAbility();
+    });
+
+    let touchStartY = null;
+    canvas.addEventListener('pointerdown', e => {
+      if (gameState !== 'PLAYING') return;
+      touchStartY = e.clientY;
+      jumpHeld = true;
+      triggerJump();
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (gameState !== 'PLAYING' || touchStartY === null) return;
+      if (e.clientY - touchStartY > 36) {
+        setDucking(true);
+      }
+    });
+    canvas.addEventListener('pointerup', () => {
+      touchStartY = null;
+      jumpHeld = false;
+      setDucking(false);
+    });
+
+    ['btn-start-game', 'btn-play-again', 'btn-restart-pause'].forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.addEventListener('click', startNewGame);
+        btn.addEventListener('touchend', startNewGame, { passive: false });
+      }
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      if (gameState === 'PLAYING') {
+        gameState = 'PAUSED';
+        renderPauseSwitcher();
+        document.getElementById('screen-pause').classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btn-resume').addEventListener('click', () => {
+      if (gameState === 'PAUSED') {
+        gameState = 'PLAYING';
+        document.getElementById('screen-pause').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('btn-go-menu').addEventListener('click', () => {
+      document.getElementById('screen-gameover').classList.add('hidden');
+      document.getElementById('hud-overlay').classList.add('hidden');
+      renderStartHeroCards();
+      document.getElementById('screen-start').classList.remove('hidden');
+      gameState = 'START';
+    });
+
+    document.getElementById('hud-switch-btn').addEventListener('click', () => {
+      if (!player || saveData.unlockedHeroes.length < 2) return;
+      const idx = saveData.unlockedHeroes.indexOf(player.id);
+      const nextId = saveData.unlockedHeroes[(idx + 1) % saveData.unlockedHeroes.length];
+      switchActiveHero(nextId, true);
+    });
+
+    document.getElementById('banner-switch-btn').addEventListener('click', () => {
+      if (newlyUnlockedHeroId) {
+        switchActiveHero(newlyUnlockedHeroId, true);
+        document.getElementById('banner-toast').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('btn-open-roster').addEventListener('click', () => {
+      renderRosterModal();
+      document.getElementById('modal-roster').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-roster').addEventListener('click', () => {
+      document.getElementById('modal-roster').classList.add('hidden');
+    });
+
+    document.getElementById('btn-close-roster-bottom').addEventListener('click', () => {
+      document.getElementById('modal-roster').classList.add('hidden');
+    });
+
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      const muted = sfx.toggleMute();
+      document.getElementById('btn-sound').textContent = muted ? '🔇' : '🔊';
+    });
+
+    updateHeaderBadges();
+    resizeCanvas();
+    createScenery();
+    renderStartHeroCards();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
